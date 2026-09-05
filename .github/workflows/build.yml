@@ -44,6 +44,11 @@ jobs:
       - name: 安装 XcodeGen 并生成工程
         run: |
           brew install xcodegen
+          # 优先使用 Xcode 16 (runner 可能默认 15.4, 而 XcodeGen 2.46 生成的工程格式较新)
+          for d in /Applications/Xcode_16.*.app; do
+            [ -d "$d" ] && sudo xcode-select -s "$d/Contents/Developer" && break
+          done
+          xcodebuild -version
           if [ "${{ matrix.variant }}" = "lite" ]; then
             xcodegen generate -s project.lite.yml
             PROJ="SQJQTrackerLite.xcodeproj"
