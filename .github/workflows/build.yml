@@ -1,4 +1,3 @@
-
 name: Build IPAs
 on:
   workflow_dispatch:
@@ -7,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-14
     strategy:
       matrix:
         variant: [lite, full]
@@ -52,9 +51,17 @@ jobs:
             xcodegen generate
             PROJ="SQJQTracker.xcodeproj"
           fi
+          set -o pipefail
           xcodebuild -project "$PROJ" -scheme SQJQTracker -configuration Release \
             -sdk iphoneos -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" 2>&1 | tee build.log
+
+      - name: 提取编译错误
+        if: failure()
+        run: |
+          echo "========== 本轮全部编译错误 (自动提炼) =========="
+          grep -E "error:" build.log | sort -u | head -60 || echo "(未匹配到 error 行)"
+          echo "========== 结束 =========="
 
       - name: 打包 IPA
         run: |
