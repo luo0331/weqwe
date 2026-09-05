@@ -86,9 +86,6 @@ final class GameSession: ObservableObject {
         d.set(frameInterval, forKey: "cfg.interval")
         d.set(jpegQuality, forKey: "cfg.quality")
         d.set(maxDim, forKey: "cfg.maxDim")
-        FrameStore.defaults?.set(frameInterval, forKey: FrameStore.intervalKey)
-        FrameStore.defaults?.set(jpegQuality, forKey: FrameStore.qualityKey)
-        FrameStore.defaults?.set(maxDim, forKey: FrameStore.maxDimKey)
     }
 
     // MARK: - 采集
@@ -96,6 +93,7 @@ final class GameSession: ObservableObject {
         stopCameraInternal()
         guard phase != .watching else { return }
         FrameStore.resetSeq()
+        FrameServer.start()
         phase = .watching
         let t = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .userInitiated))
         t.schedule(deadline: .now() + 0.4, repeating: 0.25)

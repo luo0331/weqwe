@@ -65,7 +65,7 @@ jobs:
         if: failure()
         run: |
           echo "========== 本轮全部编译错误 (自动提炼) =========="
-          grep -E "error:" build.log | sort -u | head -60 || echo "(未匹配到 error 行)"
+          grep -E "error:|requires|note: .PiPManager|candidate" build.log | sort -u | head -80 || echo "(未匹配到 error 行)"
           echo "========== 结束 =========="
 
       - name: 打包 IPA

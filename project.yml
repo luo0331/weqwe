@@ -29,6 +29,9 @@ targets:
     platform: iOS
     sources:
       - SQJQTracker
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sqjq.tracker
     dependencies:
       - target: BroadcastExtension
         embed: true
@@ -52,7 +55,9 @@ targets:
     platform: iOS
     sources:
       - BroadcastExtension
-      - SQJQTracker/Core/FrameStore.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.sqjq.tracker.extension
     info:
       path: BroadcastExtension/Info.plist
       properties:
