@@ -43,6 +43,6 @@ final class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputS
         guard let pb = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         let ci = CIImage(cvPixelBuffer: pb).oriented(.right)
         guard let cg = ciContext.createCGImage(ci, from: ci.extent) else { return }
-        Task { @MainActor in onFrame?(cg) }
+        Task { @MainActor in self.onFrame?(cg) }
     }
 }

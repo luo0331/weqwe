@@ -20,10 +20,9 @@ class SampleHandler: RPBroadcastSampleHandler {
     }
 
     override func broadcastFinished() {
-        finishBroadcast(with: nil)
     }
 
-    override func broadcastSampleBuffer(_ sampleBuffer: CMSampleBuffer, with sampleBufferType: RPSampleBufferType) {
+    override func processSampleBuffer(_ sampleBuffer: CMSampleBuffer, with sampleBufferType: RPSampleBufferType) {
         guard sampleBufferType == .video,
               CMSampleBufferDataIsReady(sampleBuffer),
               let pb = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }

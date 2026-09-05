@@ -130,7 +130,8 @@ final class InferenceEngine {
                 if owner.isEnemy {
                     if let p = pieceAt(owner, node) { kill(p, definiteRank: nil) }
                 } else {
-                    if let r = nodeRank[node] { snap.allyDead[r, default: 0] += 1 }
+                    let r = nodeRank[node]
+                    if let r { snap.allyDead[r, default: 0] += 1 }
                     nodeRank[node] = nil
                     notes.append("\(owner.label) \(BoardLayout.nodeLabel(node)) 损失（身份\(r.map { $0.rawValue } ?? "未知")）")
                 }

@@ -41,11 +41,10 @@ final class PiPManager: NSObject, ObservableObject {
         audioPlayer?.volume = 0.01
         audioPlayer?.play()
         let src = AVPictureInPictureController.ContentSource(
-            sampleBufferDisplayLayer: displayLayer, activeVideoInputSource: nil)
+            sampleBufferDisplayLayer: displayLayer, playbackDelegate: self)
         let c = AVPictureInPictureController(contentSource: src)
         c.canStartPictureInPictureAutomaticallyFromInline = true
         c.delegate = self
-        c.playbackDelegate = self
         controller = c
     }
 

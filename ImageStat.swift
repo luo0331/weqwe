@@ -35,7 +35,7 @@ enum ImageStat {
         var rh: [Double] = [], gs: [Double] = [], bl: [Double] = []
         var edgeSum = 0.0
         rh.reserveCapacity(out * out); gs.reserveCapacity(out * out); bl.reserveCapacity(out * out)
-        let lumas = UnsafeBufferPointer(start: px, count: out * out * 4)
+        let lumas = UnsafeBufferPointer(start: px.baseAddress, count: out * out * 4)
         var lumaGrid: [Double] = Array(repeating: 0, count: out * out)
         for i in 0..<(out * out) {
             let r = Double(lumas[i * 4]) / 255.0
