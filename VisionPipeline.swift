@@ -111,7 +111,7 @@ final class VisionPipeline {
         var hues: [Seat: [Double]] = [:]
         for n in BoardLayout.nodes where n.seat != .center {
             guard n.kind != .camp else { continue }
-            guard let (r, _) = readNodeRaw(n, imageSize: sz), r.occupied, let h = r.hue else { continue }
+            guard let (r, _) = readNodeRaw(n, image: image, imageSize: sz), r.occupied, let h = r.hue else { continue }
             hues[n.seat, default: []].append(h)
         }
         guard Seat.allCases.filter({ $0 != .center }).allSatisfy({ (hues[$0]?.count ?? 0) >= 8 }) else { return false }
@@ -123,7 +123,7 @@ final class VisionPipeline {
     }
 
     /// 不带稳定化/提交的裸读数（配色学习用）
-    private func readNodeRaw(_ node: BoardNode, imageSize: CGSize) -> (Reading, CGRect)? {
+    private func readNodeRaw(_ node: BoardNode, image: CGImage, imageSize: CGSize) -> (Reading, CGRect)? {
         let rect = cropRect(node.id, imageSize: imageSize)
         guard let patch = ImageStat.sample(image, rect: rect) else { return nil }
         let metric = ImageStat.occupancyMetric(patch)

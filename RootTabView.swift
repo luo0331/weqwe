@@ -70,7 +70,7 @@ struct FloatingBallView: View {
     private var ball: some View {
         ZStack {
             Circle()
-                .fill(LinearGradient(colors: [Color(hex: "#2A2E3A"), Color(hex: "#12141A")], startPoint: .top, endPoint: .bottom))
+                .fill(LinearGradient(colors: [Color(hex: "#2A2E3A") ?? Color.gray, Color(hex: "#12141A") ?? Color.gray], startPoint: .top, endPoint: .bottom))
                 .overlay(Circle().strokeBorder(Color.white.opacity(0.18), lineWidth: 1))
                 .shadow(radius: 6)
             VStack(spacing: 0) {
@@ -87,7 +87,7 @@ struct FloatingBallView: View {
             DragGesture()
                 .onChanged { v in drag = v.translation }
                 .onEnded { v in
-                    base = CGSize(width: base.width + v.width, height: base.height + v.height)
+                    base = CGSize(width: base.width + v.translation.width, height: base.height + v.translation.height)
                     drag = .zero
                     if abs(v.translation.width) < 6 && abs(v.translation.height) < 6 {
                         withAnimation(.spring(response: 0.3)) { expanded.toggle() }

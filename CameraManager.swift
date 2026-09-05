@@ -23,7 +23,7 @@ final class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputS
                   self.session.canAddInput(input) else { return }
             self.session.addInput(input)
             self.output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
-            self.output.alwaysDiscardsLateVideoBuffers = true
+            self.output.alwaysDiscardsLateVideoFrames = true
             self.output.setSampleBufferDelegate(self, queue: DispatchQueue(label: "sqjq.camera.out", qos: .userInitiated))
             if self.session.canAddOutput(self.output) { self.session.addOutput(self.output) }
             self.session.startRunning()

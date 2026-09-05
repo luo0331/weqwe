@@ -16,7 +16,7 @@ struct CalibrationView: View {
                 editor(imageSize: CGSize(width: cg.width, height: cg.height))
             } else {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 14).fill(Color(hex: "#101218"))
+                    RoundedRectangle(cornerRadius: 14).fill(Color(hex: "#101218") ?? Color.gray)
                     Text("先抓取最新画面，或从相册选一张游戏截图")
                         .foregroundColor(.secondary)
                 }

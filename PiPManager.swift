@@ -1,5 +1,6 @@
 import Foundation
 import AVFoundation
+import AVKit
 import CoreMedia
 import CoreVideo
 import UIKit
@@ -76,7 +77,7 @@ final class PiPManager: NSObject, ObservableObject {
         var timing = CMSampleTimingInfo(
             duration: CMTime(value: 1, timescale: 10),
             presentationTimeStamp: CMClockGetTime(CMClockGetHostTimeClock()),
-            invalid: .invalid)
+            decodeTimeStamp: .invalid)
         var sb: CMSampleBuffer?
         guard CMSampleBufferCreateForImageBuffer(
             allocator: kCFAllocatorDefault, imageBuffer: pb, dataReady: true,

@@ -234,7 +234,7 @@ struct DashboardView: View {
 
     private var cardBG: some View {
         RoundedRectangle(cornerRadius: 14)
-            .fill(Color(hex: "#15171E"))
+            .fill(Color(hex: "#15171E") ?? Color.gray)
             .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color.white.opacity(0.06)))
     }
 }
