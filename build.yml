@@ -1,0 +1,67 @@
+name: Build IPAs
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: macos-14
+    strategy:
+      matrix:
+        variant: [lite, full]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 还原目录结构（兼容网页上传被摊平的情况）
+        run: |
+          move() { [ -f "$1" ] && mv "$1" "$2" || true; }
+          mkdir -p SQJQTracker/App SQJQTracker/Core SQJQTracker/Session SQJQTracker/Views BroadcastExtension
+          move SQJQTrackerApp.swift SQJQTracker/App/
+          move Board.swift SQJQTracker/Core/
+          move Rank.swift SQJQTracker/Core/
+          move GameEvent.swift SQJQTracker/Core/
+          move FrameStore.swift SQJQTracker/Core/
+          move ImageStat.swift SQJQTracker/Core/
+          move OCREngine.swift SQJQTracker/Core/
+          move VisionPipeline.swift SQJQTracker/Core/
+          move InferenceEngine.swift SQJQTracker/Core/
+          move RecordStore.swift SQJQTracker/Core/
+          move GameSession.swift SQJQTracker/Session/
+          move PiPManager.swift SQJQTracker/Session/
+          move CameraManager.swift SQJQTracker/Session/
+          move DashboardView.swift SQJQTracker/Views/
+          move BoardCanvasView.swift SQJQTracker/Views/
+          move CalibrationView.swift SQJQTracker/Views/
+          move RecordsView.swift SQJQTracker/Views/
+          move SettingsView.swift SQJQTracker/Views/
+          move RootTabView.swift SQJQTracker/Views/
+          move BroadcastPicker.swift SQJQTracker/Views/
+          move SQJQTracker.entitlements SQJQTracker/
+          move SampleHandler.swift BroadcastExtension/
+          move BroadcastExtension.entitlements BroadcastExtension/
+
+      - name: 安装 XcodeGen 并生成工程
+        run: |
+          brew install xcodegen
+          if [ "${{ matrix.variant }}" = "lite" ]; then
+            xcodegen generate -s project.lite.yml
+            PROJ="SQJQTrackerLite.xcodeproj"
+          else
+            xcodegen generate
+            PROJ="SQJQTracker.xcodeproj"
+          fi
+          xcodebuild -project "$PROJ" -scheme SQJQTracker -configuration Release \
+            -sdk iphoneos -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+
+      - name: 打包 IPA
+        run: |
+          mkdir Payload
+          cp -R "build/Build/Products/Release-iphoneos/SQJQTracker.app" Payload/
+          zip -qry "SQJQTracker-${{ matrix.variant }}-unsigned.ipa" Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SQJQTracker-${{ matrix.variant }}-unsigned-ipa
+          path: SQJQTracker-${{ matrix.variant }}-unsigned.ipa

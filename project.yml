@@ -1,0 +1,63 @@
+name: SQJQTracker
+options:
+  bundleIdPrefix: com.sqjq
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    TARGETED_DEVICE_FAMILY: "1"
+
+schemes:
+  SQJQTracker:
+    build:
+      targets:
+        SQJQTracker: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+
+targets:
+  SQJQTracker:
+    type: application
+    platform: iOS
+    sources:
+      - SQJQTracker
+    dependencies:
+      - target: BroadcastExtension
+        embed: true
+    info:
+      path: SQJQTracker/Info.plist
+      properties:
+        CFBundleDisplayName: 四国记牌器
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIBackgroundModes:
+          - audio
+        NSCameraUsageDescription: 用于拍摄棋盘/棋谱辅助识别（实时监控建议使用录屏采集）
+        NSPhotoLibraryUsageDescription: 用于导入棋谱截图与校准截图
+        ITSAppUsesNonExemptEncryption: false
+    entitlements:
+      path: SQJQTracker/SQJQTracker.entitlements
+
+  BroadcastExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - BroadcastExtension
+      - SQJQTracker/Core/FrameStore.swift
+    info:
+      path: BroadcastExtension/Info.plist
+      properties:
+        CFBundleDisplayName: 记牌器采集
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.broadcast-services-upload
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SampleHandler
+    entitlements:
+      path: BroadcastExtension/BroadcastExtension.entitlements
