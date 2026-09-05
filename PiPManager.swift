@@ -227,11 +227,11 @@ extension PiPManager: AVPictureInPictureControllerDelegate {
 extension PiPManager: AVPictureInPictureSampleBufferPlaybackDelegate {
     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, setPlaying playing: Bool) {}
 
-    func pictureInPictureControllerTimeRange(_ pictureInPictureController: AVPictureInPictureController) -> CMTimeRange {
+    func pictureInPictureControllerTimeRange(for pictureInPictureController: AVPictureInPictureController) -> CMTimeRange {
         CMTimeRange(start: .negativeInfinity, duration: .positiveInfinity)
     }
 
-    func pictureInPictureControllerIsPlaybackPaused(_ pictureInPictureController: AVPictureInPictureController) -> Bool {
+    func pictureInPictureControllerIsPlaybackPaused(for pictureInPictureController: AVPictureInPictureController) -> Bool {
         false
     }
 
