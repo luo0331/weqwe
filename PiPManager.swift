@@ -22,6 +22,7 @@ struct PiPState {
 /// 悬浮窗：自定义 PiP（AVSampleBufferDisplayLayer）。
 /// iOS 不允许第三方 App 在其他 App 上层叠加窗口，PiP 是唯一合规途径：
 /// 把实时数据渲染成视频帧，通过画中画小窗浮在微信上面，边看边下。
+@MainActor
 final class PiPManager: NSObject, ObservableObject {
     @Published var isActive = false
     @Published var canPiP = false
