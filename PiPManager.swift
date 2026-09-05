@@ -228,7 +228,7 @@ extension PiPManager: AVPictureInPictureControllerDelegate {
 extension PiPManager: AVPictureInPictureSampleBufferPlaybackDelegate {
     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, setPlaying playing: Bool) {}
 
-    func pictureInPictureControllerTimeRange(_ pictureInPictureController: AVPictureInPictureController) -> CMTimeRange {
+    func pictureInPictureControllerTimeRangeForPlayback(_ pictureInPictureController: AVPictureInPictureController) -> CMTimeRange {
         CMTimeRange(start: .negativeInfinity, duration: .positiveInfinity)
     }
 
@@ -241,6 +241,10 @@ extension PiPManager: AVPictureInPictureSampleBufferPlaybackDelegate {
     }
 
     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions) {}
+
+    var byPlayerContainerView: UIView? { nil }
+
+    var pictureInPictureControllerByPlayerContainerView: UIView? { nil }
 }
 
 extension UIColor {
