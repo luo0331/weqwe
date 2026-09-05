@@ -1,6 +1,7 @@
 name: SQJQTracker
 options:
   bundleIdPrefix: com.sqjq
+  objectVersion: "56"
   deploymentTarget:
     iOS: "16.0"
   createIntermediateGroups: true
