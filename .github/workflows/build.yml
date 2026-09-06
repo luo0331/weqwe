@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: macos-14
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -73,7 +75,7 @@ jobs:
           xcodebuild -project "$PROJ" -scheme SQJQTracker -configuration Release \
             -sdk iphoneos -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
-            COMPILER_INDEX_STORE_ENABLE=NO $EXTRA_FLAGS \
+            $EXTRA_FLAGS \
             2>&1 | tee build.log
 
       - name: 提取编译错误
@@ -108,6 +110,16 @@ jobs:
         with:
           name: build-log-${{ matrix.variant }}
           path: build.log
+
+      - name: 回传完整日志到仓库（便于自动排查）
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          B64=$(base64 -i build.log | tr -d '\n')
+          gh api --method PUT "repos/${{ github.repository }}/contents/ci-debug/build-log-${{ github.run_id }}-${{ matrix.variant }}.txt" \
+            -f message="ci: build log for run ${{ github.run_id }} (${{ matrix.variant }})" \
+            -f content="$B64" >/dev/null 2>&1 && echo "log committed" || echo "log commit failed"
 
       - name: 打包 IPA
         run: |
