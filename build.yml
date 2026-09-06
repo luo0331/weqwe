@@ -63,7 +63,8 @@ jobs:
           set -o pipefail
           xcodebuild -project "$PROJ" -scheme SQJQTracker -configuration Release \
             -sdk iphoneos -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" 2>&1 | tee build.log
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            SWIFT_USE_INTEGRATED_DRIVER=NO 2>&1 | tee build.log
 
       - name: 提取编译错误
         if: failure()
