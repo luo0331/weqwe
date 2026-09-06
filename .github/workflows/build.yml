@@ -55,6 +55,9 @@ jobs:
             xcodegen generate
             PROJ="SQJQTracker.xcodeproj"
           fi
+          # XcodeGen 2.46 会忽略 objectVersion 设置、生成格式 77（默认 Xcode 15.4 读不了），强制降回 56
+          sed -i '' -E 's/objectVersion = [0-9]+/objectVersion = 56/' "$PROJ/project.pbxproj"
+          echo "工程格式: $(grep -o 'objectVersion = [0-9]*' "$PROJ/project.pbxproj" | head -1)"
           set -o pipefail
           xcodebuild -project "$PROJ" -scheme SQJQTracker -configuration Release \
             -sdk iphoneos -derivedDataPath build \
