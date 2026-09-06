@@ -120,7 +120,8 @@ struct LayoutImportView: View {
 
     private var placeholder: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 14).fill(Color(hex: "#101218"))
+            let panelBG = Color(red: 0.063, green: 0.071, blue: 0.094)
+            RoundedRectangle(cornerRadius: 14).fill(panelBG)
             VStack(spacing: 8) {
                 Image(systemName: "photo.badge.arrow.down").font(.largeTitle).foregroundColor(.secondary)
                 Text("「\(activeSeat == .me ? "我方" : "队友")布阵」：选一张布局卡截图")
@@ -192,16 +193,37 @@ struct LayoutImportView: View {
                     .scaledToFit()
                     .frame(width: fit.width, height: fit.height)
                     .position(x: fit.midX, y: fit.midY)
-                Canvas { ctx, _ in
-                    drawGridOverlay(fit: fit, imageSize: imageSize, context: &ctx)
-                }
-                .allowsHitTesting(false)
+                gridOverlayView(fit: fit, imageSize: imageSize)
                 handleView(fit: fit, imageSize: imageSize, isTopLeft: true)
                 handleView(fit: fit, imageSize: imageSize, isTopLeft: false)
                 rankStrip
             }
         }
         .frame(height: 430)
+    }
+
+    private func gridOverlayView(fit: CGRect, imageSize: CGSize) -> some View {
+        let cc = cellsBySeat[activeSeat] ?? Array(repeating: nil, count: 30)
+        return Canvas { ctx, _ in
+            for i in 0..<30 {
+                let r = Self.cellRect(i, tl: currentTL, br: currentBR, imageSize: imageSize, inset: 0.5)
+                let drect = CGRect(
+                    x: fit.minX + r.minX / imageSize.width * fit.width,
+                    y: fit.minY + r.minY / imageSize.height * fit.height,
+                    width: r.width / imageSize.width * fit.width,
+                    height: r.height / imageSize.height * fit.height)
+                ctx.stroke(Path(roundedRect: drect, cornerRadius: 3),
+                           with: .color(.white.opacity(0.5)), lineWidth: 0.8)
+                if Self.campSet.contains(i) {
+                    ctx.stroke(Path(ellipseIn: CGRect(x: drect.midX-10, y: drect.midY-10, width: 20, height: 20)),
+                               with: .color(.green.opacity(0.6)), lineWidth: 2)
+                } else if let r2 = cc[i] {
+                    ctx.draw(Text(r2.short).font(.system(size: 15, weight: .bold)).foregroundColor(.yellow),
+                             at: CGPoint(x: drect.midX, y: drect.midY))
+                }
+            }
+        }
+        .allowsHitTesting(false)
     }
 
     private var rankStrip: some View {
@@ -213,7 +235,7 @@ struct LayoutImportView: View {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 5), count: 4), spacing: 5) {
                         ForEach(Rank.allCases, id: \.self) { r in
                             Button {
-                                cellsBySeat[activeSeat][selCell] = r
+                                setCell(selCell, r)
                                 learnCellGlyph(idx: selCell, rank: r)
                                 selCell = -1
                             } label: {
@@ -226,7 +248,7 @@ struct LayoutImportView: View {
                             .buttonStyle(.plain)
                         }
                         Button("清空") {
-                            cellsBySeat[activeSeat][selCell] = nil
+                            setCell(selCell, nil)
                             selCell = -1
                         }
                         .font(.caption)
@@ -237,6 +259,12 @@ struct LayoutImportView: View {
                 .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
             }
         }
+    }
+
+    private func setCell(_ idx: Int, _ rank: Rank?) {
+        var arr = activeCells
+        arr[idx] = rank
+        cellsBySeat[activeSeat] = arr
     }
 
     private func handleView(fit: CGRect, imageSize: CGSize, isTopLeft: Bool) -> some View {
@@ -265,14 +293,14 @@ struct LayoutImportView: View {
                 y: fit.minY + r.minY / imageSize.height * fit.height,
                 width: r.width / imageSize.width * fit.width,
                 height: r.height / imageSize.height * fit.height)
-            ctx.stroke(Path(roundedRect: drect, cornerRadius: 3),
-                       with: .color(.white.opacity(0.5)), lineWidth: 0.8)
+            context.stroke(Path(roundedRect: drect, cornerRadius: 3),
+                           with: .color(.white.opacity(0.5)), lineWidth: 0.8)
             if Self.campSet.contains(i) {
-                ctx.stroke(Path(ellipseIn: CGRect(x: drect.midX-10, y: drect.midY-10, width: 20, height: 20)),
-                           with: .color(.green.opacity(0.6)), lineWidth: 2)
+                context.stroke(Path(ellipseIn: CGRect(x: drect.midX-10, y: drect.midY-10, width: 20, height: 20)),
+                               with: .color(.green.opacity(0.6)), lineWidth: 2)
             } else if let r2 = cc[i] {
-                ctx.draw(Text(r2.short).font(.system(size: 15, weight: .bold)).foregroundColor(.yellow),
-                         at: CGPoint(x: drect.midX, y: drect.midY))
+                context.draw(Text(r2.short).font(.system(size: 15, weight: .bold)).foregroundColor(.yellow),
+                             at: CGPoint(x: drect.midX, y: drect.midY))
             }
         }
     }
@@ -290,7 +318,7 @@ struct LayoutImportView: View {
                 .font(.caption2).foregroundColor(.secondary)
         }
         .padding(12)
-        .background(Color(hex: "#101218"))
+        .background(Color(red: 0.063, green: 0.071, blue: 0.094))
         .cornerRadius(12)
     }
 
@@ -317,12 +345,12 @@ struct LayoutImportView: View {
         NavigationStack {
             List {
                 Button("清空此格", role: .destructive) {
-                    cellsBySeat[activeSeat][idx] = nil
+                    setCell(idx, nil)
                     editingCell = nil
                 }
                 ForEach(Rank.allCases, id: \.self) { r in
                     Button {
-                        cellsBySeat[activeSeat][idx] = r
+                        setCell(idx, r)
                         learnCellGlyph(idx: idx, rank: r) // 手动标注自动学习字模
                         editingCell = nil
                     } label: {
