@@ -9,11 +9,36 @@ struct SettingsView: View {
             Form {
                 captureSection
                 recognizeSection
+                glyphSection
                 pipSection
                 dataSection
                 disclaimerSection
             }
             .navigationTitle("设置")
+        }
+    }
+
+    // MARK: 字模库
+    private var glyphSection: some View {
+        Section {
+            HStack {
+                Text("已学习字模")
+                Spacer()
+                Text("\(GlyphStore.learnedCount)/12 种").foregroundColor(.secondary)
+            }
+            if !GlyphStore.learnedShorts.isEmpty {
+                Text("已学: " + GlyphStore.learnedShorts.joined(separator: " "))
+                    .font(.caption).foregroundColor(.secondary)
+            }
+            Button {
+                GlyphStore.clear()
+            } label: {
+                Text("清空字模库").foregroundColor(.red)
+            }
+        } header: {
+            Text("字模库")
+        } footer: {
+            Text("怎么训练：在「棋谱 → 布阵导入」里手动点选标注的格子，会自动学习该字的图案。第一次把 12 种字各标注一遍（约 1 分钟），之后导入截图即可自动识别、越用越准。换游戏皮肤/字体后清空重学。")
         }
     }
 

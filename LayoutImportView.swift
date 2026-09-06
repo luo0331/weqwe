@@ -1,35 +1,42 @@
 import SwiftUI
 import PhotosUI
 
-/// 布阵图导入：框住布局卡 6×5 区域 → 逐格 OCR → 点格子手动纠错 → 保存/套用到本局。
-/// 套用后我方（或队友）25 枚棋子身份直接写入实时棋盘，推演从第一手就精确。
+/// 布阵图导入（对齐模拟器最终版）：
+/// - 我方 / 队友 两个独立入口，各自记住自己的截图、对齐框和标注
+/// - 拖黄点对齐 → 智能识别（字模库优先，Vision OCR 兜底）→ 点格子纠错
+/// - 保存到棋谱库 / 确认布阵（同步到实时盘面）
+/// - 手动标注会自动学习该字的字模（字模库越用越准）
 struct LayoutImportView: View {
     @EnvironmentObject var records: RecordStore
     @EnvironmentObject var session: GameSession
     @Environment(\.dismiss) private var dismiss
 
     @State private var pickerItem: PhotosPickerItem?
-    @State private var cg: CGImage?
-    @State private var tl: CGPoint = CGPoint(x: 0.14, y: 0.13)   // 6×5 区域左上（归一化）
-    @State private var br: CGPoint = CGPoint(x: 0.86, y: 0.87)   // 右下
-    @State private var cells: [Rank?] = Array(repeating: nil, count: 30)
+    @State private var activeSeat: Seat = .me
+    @State private var imgs: [Seat: CGImage] = [:]
+    @State private var tls: [Seat: CGPoint] = [.me: CGPoint(x: 0.10, y: 0.08), .teammate: CGPoint(x: 0.10, y: 0.08)]
+    @State private var brs: [Seat: CGPoint] = [.me: CGPoint(x: 0.90, y: 0.92), .teammate: CGPoint(x: 0.90, y: 0.92)]
+    @State private var cellsBySeat: [Seat: [Rank?]] = [.me: Array(repeating: nil, count: 30),
+                                                       .teammate: Array(repeating: nil, count: 30)]
     @State private var ocrRunning = false
-    @State private var seat: Seat = .me
     @State private var title = ""
     @State private var editingCell: Int?
+    @State private var selCell: Int = -1
+    @State private var status = ""
 
-    /// 行营格下标（lr,lc → (lr-1)*5+(lc-1)：(2,2)(2,4)(3,3)(4,2)(4,4)）
     private static let campSet: Set<Int> = [6, 8, 12, 16, 18]
 
-    /// 面板底色（直接用 RGB 构造，避免可选类型问题）
-    private let panelBG = Color(red: 0.06, green: 0.07, blue: 0.09)
+    private var activeCells: [Rank?] {
+        cellsBySeat[activeSeat] ?? Array(repeating: nil, count: 30)
+    }
+    private var filledCount: Int { activeCells.filter { $0 != nil }.count }
+    private var currentImage: CGImage? { imgs[activeSeat] }
+    private var currentTL: CGPoint { tls[activeSeat] ?? CGPoint(x: 0.10, y: 0.08) }
+    private var currentBR: CGPoint { brs[activeSeat] ?? CGPoint(x: 0.90, y: 0.92) }
 
-    private var filledCount: Int { cells.compactMap { $0 }.count }
-
-    /// 构成校验：与标准 25 枚配置比对
     private var compositionWarnings: [String] {
         var counts: [Rank: Int] = [:]
-        for r in cells.compactMap({ $0 }) { counts[r, default: 0] += 1 }
+        for r in activeCells.compactMap({ $0 }) { counts[r, default: 0] += 1 }
         var out: [String] = []
         for r in Rank.allCases {
             let got = counts[r] ?? 0
@@ -42,32 +49,36 @@ struct LayoutImportView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 14) {
-                    if let cg {
-                        imageEditor(imageSize: CGSize(width: cg.width, height: cg.height))
+                    entryButtons
+                    if currentImage != nil {
+                        controls
+                        imageEditor(imageSize: CGSize(width: currentImage!.width, height: currentImage!.height))
                     } else {
                         placeholder
                     }
-                    controls
                     gridEditor
                 }
                 .padding(14)
                 .padding(.bottom, 30)
             }
-            .navigationTitle("布阵图导入")
+            .navigationTitle("布阵导入 · \(activeSeat == .me ? "我方" : "队友")")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("关闭") { dismiss() }
                 }
             }
-            .onAppear(perform: loadLatest)
             .onChange(of: pickerItem) { item in
                 guard let item else { return }
                 Task {
                     if let data = try? await item.loadTransferable(type: Data.self),
                        let img = UIImage(data: data)?.cgImage {
-                        cg = img
-                        cells = Array(repeating: nil, count: 30)
+                        imgs[activeSeat] = img
+                        tls[activeSeat] = CGPoint(x: 0.10, y: 0.08)
+                        brs[activeSeat] = CGPoint(x: 0.90, y: 0.92)
+                        cellsBySeat[activeSeat] = Array(repeating: nil, count: 30)
+                        selCell = -1
+                        status = "已载入 \(activeSeat == .me ? "我方" : "队友")截图：拖两个黄点对齐 6×5 区域"
                     }
                 }
             }
@@ -78,33 +89,42 @@ struct LayoutImportView: View {
         }
     }
 
-    // MARK: 图片编辑器
-    private func imageEditor(imageSize: CGSize) -> some View {
-        GeometryReader { geo in
-            let fit = CalibrationView.fitRect(imageSize: imageSize, in: geo.size)
-            ZStack {
-                Image(uiImage: UIImage(cgImage: cg!))
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: fit.width, height: fit.height)
-                    .position(x: fit.midX, y: fit.midY)
-                Canvas { ctx, _ in
-                    drawGrid(fit: fit, imageSize: imageSize, context: &ctx)
-                }
-                handleView(fit: fit, imageSize: imageSize, isTopLeft: true)
-                handleView(fit: fit, imageSize: imageSize, isTopLeft: false)
-            }
+    // MARK: 入口按钮（双入口独立会话）
+    private var entryButtons: some View {
+        HStack(spacing: 10) {
+            entryButton(.me, label: "🟥 我方布阵")
+            entryButton(.teammate, label: "🟦 队友布阵")
         }
-        .frame(height: 420)
+    }
+
+    private func entryButton(_ seat: Seat, label: String) -> some View {
+        let cnt = (cellsBySeat[seat]?.filter { $0 != nil }.count) ?? 0
+        let isOn = activeSeat == seat
+        return Button {
+            activeSeat = seat
+            selCell = -1
+            status = "当前编辑：\(seat == .me ? "我方" : "队友")布阵"
+        } label: {
+            VStack(spacing: 4) {
+                Text(label).font(.system(size: 15, weight: .bold))
+                Text("\(cnt)/25").font(.caption2).foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+        }
+        .buttonStyle(.bordered)
+        .tint(seat == .me ? .red : .blue)
+        .opacity(isOn ? 1 : 0.45)
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(isOn ? Color.yellow : .clear, lineWidth: 2))
     }
 
     private var placeholder: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 14).fill(panelBG)
+            RoundedRectangle(cornerRadius: 14).fill(Color(hex: "#101218"))
             VStack(spacing: 8) {
                 Image(systemName: "photo.badge.arrow.down").font(.largeTitle).foregroundColor(.secondary)
-                Text("选一张布局卡截图（我方或队友）")
-                Text("把两个黄点框住 6×5 棋子区，再点识别")
+                Text("「\(activeSeat == .me ? "我方" : "队友")布阵」：选一张布局卡截图")
+                Text("拖两个黄点框住 6×5 棋子区")
             }
             .font(.footnote)
             .foregroundColor(.secondary)
@@ -112,8 +132,115 @@ struct LayoutImportView: View {
         .frame(height: 300)
     }
 
+    private var controls: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                PhotosPicker(selection: $pickerItem, matching: .images) {
+                    Label("重新选图", systemImage: "photo.on.rectangle")
+                }
+                .buttonStyle(.bordered)
+                Button {
+                    runOCR()
+                } label: {
+                    Label(ocrRunning ? "识别中…" : "🔍 智能识别", systemImage: "text.viewfinder")
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(ocrRunning)
+            }
+            .font(.footnote)
+
+            Text("点截图上的格子 → 弹出选盘标注（自动学习字模）；或点下方预览的格子修改")
+                .font(.caption2).foregroundColor(.secondary)
+
+            TextField("标题（可选，默认按日期）", text: $title)
+                .textFieldStyle(.roundedBorder)
+
+            if !compositionWarnings.isEmpty {
+                Text("构成与标准配置不符：\(compositionWarnings.joined(separator: "、")) —— 请检查对应格子")
+                    .font(.caption2).foregroundColor(.orange)
+            }
+
+            HStack(spacing: 8) {
+                Button {
+                    saveToLibrary()
+                } label: {
+                    Label("保存到棋谱库", systemImage: "tray.and.arrow.down")
+                }
+                .buttonStyle(.bordered)
+                Button {
+                    confirmLayout()
+                } label: {
+                    Label("✓ 确认布阵（同步实时）", systemImage: "square.and.arrow.down.on.square")
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .font(.footnote)
+
+            if !status.isEmpty {
+                Text(status).font(.caption).foregroundColor(.secondary)
+            }
+        }
+    }
+
+    // MARK: 截图编辑器（拖手柄对齐 + 点格子标注）
+    private func imageEditor(imageSize: CGSize) -> some View {
+        GeometryReader { geo in
+            let fit = CalibrationView.fitRect(imageSize: imageSize, in: geo.size)
+            ZStack {
+                Image(uiImage: UIImage(cgImage: currentImage!))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: fit.width, height: fit.height)
+                    .position(x: fit.midX, y: fit.midY)
+                Canvas { ctx, _ in
+                    drawGridOverlay(fit: fit, imageSize: imageSize, context: &ctx)
+                }
+                .allowsHitTesting(false)
+                handleView(fit: fit, imageSize: imageSize, isTopLeft: true)
+                handleView(fit: fit, imageSize: imageSize, isTopLeft: false)
+                rankStrip
+            }
+        }
+        .frame(height: 430)
+    }
+
+    private var rankStrip: some View {
+        Group {
+            if selCell >= 0 {
+                VStack(spacing: 6) {
+                    Text("标注 · 第\((selCell/5)+1)排 第\((selCell%5)+1)列")
+                        .font(.caption).foregroundColor(.secondary)
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 5), count: 4), spacing: 5) {
+                        ForEach(Rank.allCases, id: \.self) { r in
+                            Button {
+                                cellsBySeat[activeSeat][selCell] = r
+                                learnCellGlyph(idx: selCell, rank: r)
+                                selCell = -1
+                            } label: {
+                                Text("\(r.short) \(r.rawValue)")
+                                    .font(.caption).fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 6)
+                                    .background(Color.blue.opacity(0.12), in: RoundedRectangle(cornerRadius: 7))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        Button("清空") {
+                            cellsBySeat[activeSeat][selCell] = nil
+                            selCell = -1
+                        }
+                        .font(.caption)
+                        .frame(maxWidth: .infinity)
+                    }
+                }
+                .padding(10)
+                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
+        }
+    }
+
     private func handleView(fit: CGRect, imageSize: CGSize, isTopLeft: Bool) -> some View {
-        let p = isTopLeft ? tl : br
+        let p = isTopLeft ? currentTL : currentBR
         return Circle()
             .fill(Color.yellow)
             .frame(width: 22, height: 22)
@@ -124,122 +251,63 @@ struct LayoutImportView: View {
                     var q = v.location
                     q.x = min(0.985, max(0.015, (q.x - fit.minX) / fit.width))
                     q.y = min(0.985, max(0.015, (q.y - fit.minY) / fit.height))
-                    if isTopLeft { tl = q } else { br = q }
+                    if isTopLeft { tls[activeSeat] = q } else { brs[activeSeat] = q }
                 }
             )
     }
 
-    private func drawGrid(fit: CGRect, imageSize: CGSize, context: inout GraphicsContext) {
+    private func drawGridOverlay(fit: CGRect, imageSize: CGSize, context: inout GraphicsContext) {
+        let cc = cellsBySeat[activeSeat] ?? Array(repeating: nil, count: 30)
         for i in 0..<30 {
-            let rect = Self.cellRect(i, tl: tl, br: br, imageSize: imageSize)
+            let r = Self.cellRect(i, tl: currentTL, br: currentBR, imageSize: imageSize, inset: 0.5)
             let drect = CGRect(
-                x: fit.minX + rect.minX / imageSize.width * fit.width,
-                y: fit.minY + rect.minY / imageSize.height * fit.height,
-                width: rect.width / imageSize.width * fit.width,
-                height: rect.height / imageSize.height * fit.height)
-            context.stroke(Path(roundedRect: drect, cornerRadius: 3),
-                           with: .color(.white.opacity(0.5)), lineWidth: 0.7)
+                x: fit.minX + r.minX / imageSize.width * fit.width,
+                y: fit.minY + r.minY / imageSize.height * fit.height,
+                width: r.width / imageSize.width * fit.width,
+                height: r.height / imageSize.height * fit.height)
+            ctx.stroke(Path(roundedRect: drect, cornerRadius: 3),
+                       with: .color(.white.opacity(0.5)), lineWidth: 0.8)
             if Self.campSet.contains(i) {
-                context.draw(Text("○").font(.system(size: 11)).foregroundColor(.white.opacity(0.6)),
-                             at: CGPoint(x: drect.midX, y: drect.midY))
-            } else if let r = cells[i] {
-                context.draw(Text(r.short).font(.system(size: 13, weight: .bold)).foregroundColor(.yellow),
-                             at: CGPoint(x: drect.midX, y: drect.midY))
+                ctx.stroke(Path(ellipseIn: CGRect(x: drect.midX-10, y: drect.midY-10, width: 20, height: 20)),
+                           with: .color(.green.opacity(0.6)), lineWidth: 2)
+            } else if let r2 = cc[i] {
+                ctx.draw(Text(r2.short).font(.system(size: 15, weight: .bold)).foregroundColor(.yellow),
+                         at: CGPoint(x: drect.midX, y: drect.midY))
             }
         }
     }
 
-    // MARK: 控制
-    private var controls: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 10) {
-                PhotosPicker(selection: $pickerItem, matching: .images) {
-                    Label("选布局图", systemImage: "photo.on.rectangle")
-                }
-                .buttonStyle(.bordered)
-                Button {
-                    autoAlign()
-                } label: {
-                    Label("自动对齐", systemImage: "wand.and.rays")
-                }
-                .buttonStyle(.bordered)
-                .disabled(cg == nil)
-                Button {
-                    runOCR()
-                } label: {
-                    Label(ocrRunning ? "识别中…" : "识别 25 格", systemImage: "text.viewfinder")
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(cg == nil || ocrRunning)
-            }
-            .font(.footnote)
-            Text("两个黄点对准布局卡 6×5 棋子区的左上、右下角；识别错的直接点下方格子改。布局卡方向与对局一致：上=前排，左=左手侧。")
-                .font(.caption2).foregroundColor(.secondary)
-
-            Picker("归属", selection: $seat) {
-                Text("我方布阵").tag(Seat.me)
-                Text("队友布阵").tag(Seat.teammate)
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-
-            TextField("标题（可选，默认按日期）", text: $title)
-                .textFieldStyle(.roundedBorder)
-
-            if !compositionWarnings.isEmpty {
-                Text("构成与标准配置不符：\(compositionWarnings.joined(separator: "、")) —— 请检查对应格子")
-                    .font(.caption2).foregroundColor(.orange)
-            }
-
-            HStack(spacing: 10) {
-                Button {
-                    save(apply: false)
-                } label: {
-                    Label("保存到棋谱库", systemImage: "tray.and.arrow.down")
-                }
-                .buttonStyle(.bordered)
-                Button {
-                    save(apply: true)
-                } label: {
-                    Label("保存并套用到本局", systemImage: "square.and.arrow.down.on.square")
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(filledCount == 0)
-            }
-            .font(.footnote)
-        }
-    }
-
-    // MARK: 网格纠错
+    // MARK: 棋盘预览网格（点格子修改）
     private var gridEditor: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("识别结果（点格子纠错；○=行营）").font(.headline)
+            Text("布阵预览（点格子修改）").font(.headline)
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 5), spacing: 6) {
                 ForEach(0..<30, id: \.self) { i in
                     Button { editingCell = i } label: { cellView(i) }
                 }
             }
-            Text("已填 \(filledCount)/25")
+            Text("已标注 \(filledCount)/25 —— ○=行营；未标注格留空，不影响确认")
                 .font(.caption2).foregroundColor(.secondary)
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 12).fill(panelBG))
+        .background(Color(hex: "#101218"))
+        .cornerRadius(12)
     }
 
-    @ViewBuilder
     private func cellView(_ i: Int) -> some View {
         let isCamp = Self.campSet.contains(i)
-        ZStack {
+        let r = activeCells[i]
+        return ZStack {
             RoundedRectangle(cornerRadius: 8)
                 .fill(isCamp ? Color.gray.opacity(0.15)
-                      : (cells[i] == nil ? Color.orange.opacity(0.12) : Color.blue.opacity(0.14)))
+                      : (r == nil ? Color.orange.opacity(0.12) : Color.blue.opacity(0.14)))
                 .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Color.white.opacity(0.15)))
             if isCamp {
                 Text("○").font(.system(size: 16)).foregroundColor(.secondary)
-            } else if let r = cells[i] {
-                Text(r.short).font(.system(size: 18, weight: .bold)).foregroundColor(.white)
+            } else if let rr = r {
+                Text(rr.short).font(.system(size: 19, weight: .bold)).foregroundColor(.white)
             } else {
-                Text("?").font(.system(size: 16, weight: .bold)).foregroundColor(.orange)
+                Text("?").font(.system(size: 15, weight: .bold)).foregroundColor(.orange)
             }
         }
         .frame(height: 44)
@@ -249,166 +317,121 @@ struct LayoutImportView: View {
         NavigationStack {
             List {
                 Button("清空此格", role: .destructive) {
-                    cells[idx] = nil
+                    cellsBySeat[activeSeat][idx] = nil
                     editingCell = nil
                 }
                 ForEach(Rank.allCases, id: \.self) { r in
                     Button {
-                        cells[idx] = r
+                        cellsBySeat[activeSeat][idx] = r
+                        learnCellGlyph(idx: idx, rank: r) // 手动标注自动学习字模
                         editingCell = nil
                     } label: {
                         HStack {
                             Text(r.short).bold()
                             Text(r.rawValue).foregroundColor(.secondary)
                             Spacer()
-                            if cells[idx] == r {
+                            if activeCells[idx] == r {
                                 Image(systemName: "checkmark").foregroundColor(.blue)
                             }
                         }
                     }
                 }
             }
-            .navigationTitle("第\(idx / 5 + 1)排 第\(idx % 5 + 1)列")
+            .navigationTitle("第\((idx/5)+1)排 第\((idx%5)+1)列")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
 
     // MARK: 逻辑
-    private func loadLatest() {
-        session.currentFrame { img in
-            if let img { cg = img }
+    private func learnCellGlyph(idx: Int, rank: Rank) {
+        guard let cg = currentImage else { return }
+        let rect = Self.cellRect(idx, tl: currentTL, br: currentBR,
+                                 imageSize: CGSize(width: cg.width, height: cg.height), inset: 0.30)
+        if let crop = ImageStat.upscaled(cg, rect: rect, scale: 3, minSide: 96),
+           let bits = GlyphStore.hashBits(of: crop) {
+            GlyphStore.learn(bits, rank: rank)
         }
     }
 
     private func runOCR() {
-        guard let cg, !ocrRunning else { return }
+        guard let cg = currentImage, !ocrRunning else { return }
         ocrRunning = true
         let img = cg
-        let t = tl, b = br
+        let t = currentTL, b = currentBR
         Task.detached(priority: .userInitiated) {
             var result = Array(repeating: Rank?.none, count: 30)
+            var byGlyph = 0
+            var byVision = 0
             for i in 0..<30 where !LayoutImportView.campSet.contains(i) {
-                // 裁剪收紧到字面（0.30），放大到更大尺寸；正向失败再试旋转 180°
                 let rect = LayoutImportView.cellRect(i, tl: t, br: b,
-                                                     imageSize: CGSize(width: img.width, height: img.height),
-                                                     inset: 0.30)
-                if let up = ImageStat.upscaled(img, rect: rect, scale: 4, minSide: 140) {
+                                                     imageSize: CGSize(width: img.width, height: img.height), inset: 0.30)
+                // 1) 字模优先（学过的字，离线极准）
+                if GlyphStore.learnedCount > 0,
+                   let crop = ImageStat.upscaled(img, rect: rect, scale: 3, minSide: 96),
+                   let bits = GlyphStore.hashBits(of: crop),
+                   let r = GlyphStore.match(bits) {
+                    result[i] = r; byGlyph += 1
+                    continue
+                }
+                // 2) Vision OCR（正向/旋转各试一次）
+                if let up = ImageStat.upscaled(img, rect: rect, scale: 3, minSide: 128) {
                     if let r = OCREngine.shared.recognizeLayoutCellSync(in: up) {
-                        result[i] = r
-                    } else if let up2 = ImageStat.upscaled(img, rect: rect, scale: 4, minSide: 140, rotate180: true),
+                        result[i] = r; byVision += 1
+                    } else if let up2 = ImageStat.upscaled(img, rect: rect, scale: 3, minSide: 128, rotate180: true),
                               let r2 = OCREngine.shared.recognizeLayoutCellSync(in: up2) {
-                        result[i] = r2
+                        result[i] = r2; byVision += 1
                     }
                 }
             }
+            let gCount = byGlyph, vCount = byVision
             await MainActor.run {
-                cells = result
+                cellsBySeat[activeSeat] = result
                 ocrRunning = false
+                status = "识别完成：\(result.compactMap { $0 }.count)/25（字模 \(gCount) + Vision \(vCount)）—— 错的点格子改"
             }
         }
     }
 
-    private func save(apply: Bool) {
-        var rec = GameRecord(
-            title: title.isEmpty ? "\(seat.label)布阵 \(Date().formatted(.dateTime.month().day()))" : title,
+    private func saveToLibrary() {
+        let filled = filledCount
+        guard filled > 0 else { status = "没有可保存的标注"; return }
+        let d = Date()
+        let df = DateFormatter()
+        df.dateFormat = "M/d HH:mm"
+        let rec = GameRecord(
+            title: title.isEmpty ? "\(activeSeat == .me ? "我方" : "队友")布阵 \(df.string(from: d))" : title,
             kind: .layout,
-            rawText: "")
-        rec.grid = cells.map { $0?.rawValue ?? "" }
-        rec.gridSeat = seat.rawValue
+            rawText: "",
+            grid: activeCells.map { $0?.rawValue ?? "" },
+            gridSeat: activeSeat.rawValue)
         records.add(rec)
-        if apply { session.applyLayout(rec) }
-        dismiss()
+        status = "已保存到棋谱库：\(rec.title)"
     }
 
-    /// 网格下标 → 图像像素区域（inset 控制裁剪相对格子的收紧程度）
+    private func confirmLayout() {
+        let filled = filledCount
+        guard filled > 0 else { status = "先标注至少一枚棋子"; return }
+        let d = Date()
+        let df = DateFormatter()
+        df.dateFormat = "M/d HH:mm"
+        let rec = GameRecord(
+            title: title.isEmpty ? "\(activeSeat == .me ? "我方" : "队友")布阵 \(df.string(from: d))" : title,
+            kind: .layout,
+            rawText: "",
+            grid: activeCells.map { $0?.rawValue ?? "" },
+            gridSeat: activeSeat.rawValue)
+        records.add(rec)          // 自动存档
+        session.applyLayout(rec)  // 同步到实时盘面
+        status = "✓ 已确认并同步到实时盘面（\(filled) 枚）"
+    }
+
+    /// 格子下标 → 源图像素区域（inset 控制裁剪相对格子的收紧程度）
     static func cellRect(_ i: Int, tl: CGPoint, br: CGPoint, imageSize: CGSize, inset: CGFloat = 0.36) -> CGRect {
-        let lr = i / 5, lc = i % 5
-        let w = (br.x - tl.x) / 5, h = (br.y - tl.y) / 6
-        let cx = tl.x + (CGFloat(lc) + 0.5) * w
-        let cy = tl.y + (CGFloat(lr) + 0.5) * h
+        let w = (br.x - tl.x) * imageSize.width / 5
+        let h = (br.y - tl.y) * imageSize.height / 6
+        let cx = tl.x * imageSize.width + (CGFloat(i % 5) + 0.5) * w
+        let cy = tl.y * imageSize.height + (CGFloat(i / 5) + 0.5) * h
         let half = min(w, h) * inset
-        return CGRect(x: (cx - half) * imageSize.width, y: (cy - half) * imageSize.height,
-                      width: half * 2 * imageSize.width, height: half * 2 * imageSize.height)
-    }
-
-    // MARK: 自动对齐（亮度投影吸附：找 5 列 6 行的棋子亮带中心）
-    private func autoAlign() {
-        guard let cg else { return }
-        let img = cg
-        let t = tl, b = br
-        Task.detached(priority: .userInitiated) {
-            if let g = LayoutImportView.refineGrid(image: img, tl: t, br: b) {
-                await MainActor.run {
-                    self.tl = g.0
-                    self.br = g.1
-                    self.session.toast = "网格已自动对齐"
-                }
-            } else {
-                await MainActor.run {
-                    self.session.toast = "自动对齐失败，请手动拖黄点"
-                }
-            }
-        }
-    }
-
-    /// 在用户粗框内做行/列亮度投影，吸附到 6×5 棋子亮带
-    static func refineGrid(image: CGImage, tl: CGPoint, br: CGPoint) -> (CGPoint, CGPoint)? {
-        let W = 240, H = 240
-        let cropRect = CGRect(x: tl.x * CGFloat(image.width), y: tl.y * CGFloat(image.height),
-                              width: (br.x - tl.x) * CGFloat(image.width),
-                              height: (br.y - tl.y) * CGFloat(image.height))
-            .intersection(CGRect(x: 0, y: 0, width: image.width, height: image.height))
-        guard cropRect.width > 8, cropRect.height > 8,
-              let crop = image.cropping(to: cropRect),
-              let ctx = CGContext(data: nil, width: W, height: H, bitsPerComponent: 8, bytesPerRow: W * 4,
-                                  space: ImageStat.rgbSpace,
-                                  bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
-        ctx.interpolationQuality = .medium
-        ctx.draw(crop, in: CGRect(x: 0, y: 0, width: W, height: H))
-        guard let data = ctx.data else { return nil }
-        let px = data.bindMemory(to: UInt8.self, capacity: W * H * 4)
-        var luma = [Double](repeating: 0, count: W * H)
-        for i in 0..<(W * H) {
-            luma[i] = 0.299 * Double(px[i * 4]) + 0.587 * Double(px[i * 4 + 1]) + 0.114 * Double(px[i * 4 + 2])
-        }
-
-        func centers(_ count: Int, horizontal: Bool) -> [Double]? {
-            let aCount = horizontal ? W : H
-            let bCount = horizontal ? H : W
-            var profile = [Double](repeating: 0, count: aCount)
-            for a in 0..<aCount {
-                var s = 0.0
-                for b in 0..<bCount {
-                    let idx = horizontal ? b * W + a : a * W + b
-                    s += luma[idx]
-                }
-                profile[a] = s / Double(bCount)
-            }
-            let sm = (0..<aCount).map { i -> Double in
-                let lo = max(0, i - 2), hi = min(aCount - 1, i + 2)
-                return (lo...hi).map { profile[$0] }.reduce(0, +) / Double(hi - lo + 1)
-            }
-            var peaks: [(Double, Double)] = []
-            for i in 2..<(aCount - 2) where sm[i] >= sm[i - 1] && sm[i] >= sm[i + 1] {
-                peaks.append((Double(i), sm[i]))
-            }
-            guard peaks.count >= count else { return nil }
-            peaks.sort { $0.1 > $1.1 }
-            let chosen = peaks.prefix(count).map(\.0).sorted()
-            // 等距重建并验证间距合理
-            let step = (chosen.last! - chosen.first!) / Double(count - 1)
-            guard step > 12 else { return nil }
-            return (0..<count).map { chosen.first! + step * Double($0) }
-        }
-
-        guard let cols = centers(5, horizontal: true), let rows = centers(6, horizontal: false) else { return nil }
-        let nx0 = (cols.first! - (cols[1] - cols[0]) / 2) / Double(W)
-        let nx1 = (cols.last! + (cols[1] - cols[0]) / 2) / Double(W)
-        let ny0 = (rows.first! - (rows[1] - rows[0]) / 2) / Double(H)
-        let ny1 = (rows.last! + (rows[1] - rows[0]) / 2) / Double(H)
-        guard nx1 > nx0, ny1 > ny0 else { return nil }
-        let newTL = CGPoint(x: tl.x + (br.x - tl.x) * nx0, y: tl.y + (br.y - tl.y) * ny0)
-        let newBR = CGPoint(x: tl.x + (br.x - tl.x) * nx1, y: tl.y + (br.y - tl.y) * ny1)
-        return (newTL, newBR)
+        return CGRect(x: cx - half, y: cy - half, width: half * 2, height: half * 2)
     }
 }
