@@ -28,6 +28,7 @@ jobs:
           move VisionPipeline.swift SQJQTracker/Core/
           move InferenceEngine.swift SQJQTracker/Core/
           move RecordStore.swift SQJQTracker/Core/
+          move GlyphStore.swift SQJQTracker/Core/
           move GameSession.swift SQJQTracker/Session/
           move PiPManager.swift SQJQTracker/Session/
           move CameraManager.swift SQJQTracker/Session/
