@@ -164,7 +164,7 @@ final class PiPManager: NSObject, ObservableObject {
             // 12 格：每级存活数（阵亡变暗归零，数字红色）
             let order: [Rank] = [.司令, .军长, .师长, .旅长, .团长, .营长, .连长, .排长, .工兵, .炸弹, .地雷, .军旗]
             let chipW = (half - 24) / 3
-            let chipH = (390 - 30) / 4
+            let chipH: CGFloat = 390.0 / 4.0
             let f = UIFont.systemFont(ofSize: 44, weight: .bold)
             for idx in 0..<12 {
                 let r = order[idx]
