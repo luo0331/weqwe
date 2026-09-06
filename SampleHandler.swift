@@ -1,4 +1,3 @@
-import Foundation
 import ReplayKit
 import CoreImage
 import CoreMedia
@@ -7,6 +6,7 @@ import Network
 
 /// 录屏采集扩展：接收系统屏幕帧 → 降采样 → JPEG → 通过 127.0.0.1 推给主 App。
 /// (免费签名无 App Group 权限, 用 loopback 网络传帧替代)
+/// 关键：主 App 可能晚于广播启动/曾被系统挂起，所以连接必须带重连，绝不能一次性。
 class SampleHandler: RPBroadcastSampleHandler {
 
     private let ciContext = CIContext()
@@ -15,22 +15,42 @@ class SampleHandler: RPBroadcastSampleHandler {
     private let interval: Double = 0.34
     private let quality: Double = 0.6
     private let maxDim: CGFloat = 1600
+
+    private let queue = DispatchQueue(label: "sqjq.ext.send", qos: .utility)
     private var conn: NWConnection?
+    private var lastReconnect = Date.distantPast
 
     override func broadcastStarted(withSetupInfo setupInfo: [String: NSObject]?) {
         seq = 0
-        connect()
+        queue.async { self.connectIfNeeded(force: true) }
     }
 
     override func broadcastFinished() {
-        conn?.cancel()
-        conn = nil
+        queue.async {
+            self.conn?.cancel()
+            self.conn = nil
+        }
     }
 
-    private func connect() {
+    /// 确保 loopback 连接可用；失败/未就绪时按 0.8s 节流反复重连
+    private func connectIfNeeded(force: Bool = false) {
+        if let c = conn {
+            switch c.state {
+            case .ready, .preparing, .setup:
+                if !force { return }
+            default: break
+            }
+        }
+        if !force, Date().timeIntervalSince(lastReconnect) < 0.8 { return }
+        lastReconnect = Date()
+        conn?.cancel()
         let c = NWConnection(host: "127.0.0.1", port: 18080, using: .tcp)
-        c.stateUpdateHandler = { _ in }
-        c.start(queue: DispatchQueue.global(qos: .utility))
+        c.stateUpdateHandler = { [weak self] state in
+            if case .failed = state {
+                self?.queue.async { self?.connectIfNeeded() }
+            }
+        }
+        c.start(queue: queue)
         conn = c
     }
 
@@ -56,12 +76,17 @@ class SampleHandler: RPBroadcastSampleHandler {
         guard CGImageDestinationFinalize(dest) else { return }
 
         seq += 1
-        send(jpeg: data as Data, seq: seq)
+        let s = seq
+        let jpeg = data as Data
+        queue.async { self.send(jpeg: jpeg, seq: s) }
     }
 
     /// 帧协议: [4B 大端 jpeg 长度][4B 大端 seq][jpeg]
     private func send(jpeg: Data, seq: Int) {
-        guard let c = conn, c.state == .ready else { return }
+        guard let c = conn, c.state == .ready else {
+            connectIfNeeded()
+            return
+        }
         let n = UInt32(jpeg.count)
         let s = UInt32(seq)
         var head: [UInt8] = [

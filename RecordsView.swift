@@ -39,8 +39,15 @@ struct RecordsView: View {
             .navigationTitle("棋谱库")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
+                    NavigationLink {
+                        LayoutImportView()
+                    } label: {
+                        Label("布阵导入", systemImage: "grid")
+                    }
+                }
+                ToolbarItem(placement: .primaryAction) {
                     PhotosPicker(selection: $pickerItems, matching: .images) {
-                        Label("导入", systemImage: "plus.viewfinder")
+                        Label("截图导入", systemImage: "plus.viewfinder")
                     }
                 }
             }

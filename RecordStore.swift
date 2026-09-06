@@ -12,8 +12,27 @@ struct GameRecord: Identifiable, Codable, Equatable {
     var title: String = ""
     var kind: Kind = .battleLog
     var rawText: String = ""
+    /// 布阵网格：30 格，index = (行-1)*5 + (列-1)，值为 Rank.rawValue 或 ""（行=前排→后排，列=左手→右手）
+    var grid: [String]? = nil
+    /// 布阵归属："me" / "teammate"
+    var gridSeat: String? = nil
 
     var parsedRanks: [Rank: Int] { RecordStore.parse(rawText) }
+
+    /// 布阵条目：优先用结构化网格，否则回退文本解析
+    func layoutEntries() -> [RecordStore.LayoutEntry] {
+        if let grid, grid.count == 30 {
+            let seat = Seat(rawValue: gridSeat ?? Seat.me.rawValue) ?? .me
+            var out: [RecordStore.LayoutEntry] = []
+            for (i, s) in grid.enumerated() where !s.isEmpty {
+                if let r = Rank(rawValue: s) {
+                    out.append(RecordStore.LayoutEntry(seat: seat, lr: i / 5 + 1, lc: i % 5 + 1, rank: r))
+                }
+            }
+            return out
+        }
+        return RecordStore.parseLayout(rawText)
+    }
 }
 
 @MainActor

@@ -11,6 +11,7 @@ struct SQJQTrackerApp: App {
                 .environmentObject(session)
                 .environmentObject(records)
                 .preferredColorScheme(.dark)
+                .onAppear { FrameServer.start() }
         }
     }
 }

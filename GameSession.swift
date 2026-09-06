@@ -49,6 +49,7 @@ final class GameSession: ObservableObject {
     private let pipeline = VisionPipeline()
     private lazy var analyzer = FrameAnalyzer(pipeline: pipeline)
     private var pollTimer: DispatchSourceTimer?
+    private var idleTimer: DispatchSourceTimer?
     private var baseline: [Int: NodeSnapshot] = [:]
     private var lastOCRAt = Date.distantPast
     private var ocrCursor = 0
@@ -73,6 +74,22 @@ final class GameSession: ObservableObject {
         analyzer.updateThreshold(threshold)
         applyCaptureSettings()
         pip.setup()
+        FrameServer.start()
+        startIdlePolling()
+    }
+
+    /// 待机轮询（1s）：App 启动即常驻，无论用户何时/从哪里开启录屏，帧到来都能接住。
+    /// 这样"进游戏后才从控制中心开录屏"也成立，无需来回切 App。
+    private func startIdlePolling() {
+        guard idleTimer == nil else { return }
+        let t = DispatchSource.makeTimerSource(queue: DispatchQueue.global(qos: .userInitiated))
+        t.schedule(deadline: .now() + 1, repeating: 1.0)
+        t.setEventHandler { [weak self] in
+            guard let (img, _) = FrameStore.readLatestFrame() else { return }
+            Task { @MainActor [weak self] in self?.ingest(img) }
+        }
+        t.resume()
+        idleTimer = t
     }
 
     private func persistCorners() {
@@ -91,7 +108,8 @@ final class GameSession: ObservableObject {
     // MARK: - 采集
     func startWatching() {
         stopCameraInternal()
-        guard phase != .watching else { return }
+        idleTimer?.cancel()
+        idleTimer = nil
         FrameStore.resetSeq()
         FrameServer.start()
         phase = .watching
@@ -110,6 +128,7 @@ final class GameSession: ObservableObject {
         pollTimer?.cancel()
         pollTimer = nil
         if phase == .watching { phase = .idle }
+        startIdlePolling()
     }
 
     func startCamera() {
@@ -361,7 +380,7 @@ final class GameSession: ObservableObject {
     // MARK: - 棋谱布阵
     func applyLayout(_ record: GameRecord) {
         var pre: [Int: Rank] = [:]
-        for e in RecordStore.parseLayout(record.rawText) {
+        for e in record.layoutEntries() {
             if let id = BoardLayout.nodeID(seat: e.seat, localRow: e.lr, localCol: e.lc) {
                 pre[id] = e.rank
             }

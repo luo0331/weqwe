@@ -27,6 +27,23 @@ final class OCREngine {
         recognizeTextSync(in: cg, maxCandidates: 1)
     }
 
+    /// 布阵卡单字 → 等级（微信小程序布局卡用单字：司/军/师/旅/团/营/连/排/兵/弹/雷/旗）
+    static let layoutSymbolMap: [String: Rank] = [
+        "司": .司令, "军": .军长, "师": .师长, "旅": .旅长, "团": .团长, "营": .营长,
+        "连": .连长, "排": .排长, "兵": .工兵, "工": .工兵, "炸": .炸弹, "弹": .炸弹,
+        "雷": .地雷, "旗": .军旗,
+    ]
+
+    /// 识别布阵卡单个格子（取所有候选文本中第一个命中的单字）
+    func recognizeLayoutCellSync(in cg: CGImage) -> Rank? {
+        for t in recognizeTextSync(in: cg, maxCandidates: 3) {
+            for ch in t {
+                if let r = Self.layoutSymbolMap[String(ch)] { return r }
+            }
+        }
+        return nil
+    }
+
     private func recognizeTextSync(in cg: CGImage, maxCandidates: Int) -> [String] {
         var out: [String] = []
         let request = VNRecognizeTextRequest { req, _ in
