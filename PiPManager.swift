@@ -61,6 +61,14 @@ final class PiPManager: NSObject, ObservableObject {
         c.delegate = self
         controller = c
 
+        // 关键：给显示层挂上时间基准（宿主时钟），否则入队的帧因时间戳不匹配而黑屏
+        if displayLayer.controlTimebase == nil {
+            var tb: CMTimebase?
+            if CMTimebaseCreateWithSourceClock(allocator: kCFAllocatorDefault, sourceClock: CMClockGetHostTimeClock(), timebaseOut: &tb) == noErr, let tb {
+                displayLayer.controlTimebase = tb
+            }
+        }
+
         // 定时渲染（1fps）：无论是否在对局，小窗始终显示最新牌情
         let t = DispatchSource.makeTimerSource(queue: .main)
         t.schedule(deadline: .now() + 1, repeating: 1.0)

@@ -153,6 +153,9 @@ struct LayoutImportView: View {
             Text("点截图上的格子 → 弹出选盘标注（自动学习字模）；或点下方预览的格子修改")
                 .font(.caption2).foregroundColor(.secondary)
 
+            Text("字模库：\(GlyphStore.learnedCount)/12 种已学习 —— 学全 12 种后，识别基本全自动")
+                .font(.caption2).foregroundColor(GlyphStore.learnedCount >= 12 ? .green : .orange)
+
             TextField("标题（可选，默认按日期）", text: $title)
                 .textFieldStyle(.roundedBorder)
 

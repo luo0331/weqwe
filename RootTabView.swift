@@ -26,8 +26,6 @@ struct RootTabView: View {
                 SettingsView()
                     .tabItem { Label("设置", systemImage: "gearshape") }
             }
-            FloatingBallView()
-                .padding(.bottom, 90)
             toastOverlay
         }
     }

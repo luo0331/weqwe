@@ -25,14 +25,22 @@ struct RecordsView: View {
                     .padding(30)
                 } else {
                     List {
-                        ForEach(records.records) { r in
-                            NavigationLink {
-                                RecordDetailView(record: r)
-                            } label: {
-                                row(r)
-                            }
+                ForEach(records.records) { r in
+                    NavigationLink {
+                        RecordDetailView(record: r)
+                    } label: {
+                        row(r)
+                    }
+                    .swipeActions(edge: .leading) {
+                        Button {
+                            session.applyLayout(r)
+                        } label: {
+                            Label("引用", systemImage: "bolt.fill")
                         }
-                        .onDelete { records.remove(at: $0) }
+                        .tint(.blue)
+                    }
+                }
+                .onDelete { records.remove(at: $0) }
                     }
                 }
             }

@@ -35,8 +35,8 @@ enum Seat: String, Codable, CaseIterable, Hashable {
     /// UI 主色
     var colorHex: String {
         switch self {
-        case .me: return "#E8574C"
-        case .teammate: return "#3D8CE8"
+        case .me: return "#3D8CE8"       // 与游戏一致：我方蓝色
+        case .teammate: return "#E8574C" // 队友红色
         case .leftEnemy: return "#3FA65C"
         case .rightEnemy: return "#C8922E"
         case .center: return "#8A8A96"

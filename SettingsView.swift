@@ -131,18 +131,23 @@ struct SettingsView: View {
             NavigationLink {
                 CalibrationView()
             } label: {
-                Label("棋盘校准与诊断", systemImage: "viewfinder")
+                Label(“棋盘校准与诊断”, systemImage: “viewfinder”)
             }
-            Toggle("OCR 自动识别我方/队友棋子", isOn: $session.ocrEnabled)
+            Toggle(“OCR 自动识别我方棋子”, isOn: $session.ocrEnabled)
+            Button {
+                GlyphStore.clear()
+            } label: {
+                Label(“清空字模库（\(GlyphStore.learnedCount)/12）”, systemImage: “trash”)
+            }
             Button {
                 session.relearnHues()
             } label: {
-                Label("重新学习四家配色", systemImage: "paintpalette")
+                Label(“重新学习四家配色”, systemImage: “paintpalette”)
             }
         } header: {
-            Text("识别")
+            Text(“识别”)
         } footer: {
-            Text("首次使用必须校准；配色在“开始本局”时自动学习，若对局中换肤/变色可手动重学。")
+            Text(“首次使用必须校准。字模训练：布阵导入里手动标注的格子会自动学习字模，学全 12 种后导入截图即可自动识别。”)
         }
     }
 
