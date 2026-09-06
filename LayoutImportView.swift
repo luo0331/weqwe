@@ -21,6 +21,9 @@ struct LayoutImportView: View {
     /// 行营格下标（lr,lc → (lr-1)*5+(lc-1)：(2,2)(2,4)(3,3)(4,2)(4,4)）
     private static let campSet: Set<Int> = [6, 8, 12, 16, 18]
 
+    /// 面板底色（直接用 RGB 构造，避免可选类型问题）
+    private let panelBG = Color(red: 0.06, green: 0.07, blue: 0.09)
+
     private var filledCount: Int { cells.compactMap { $0 }.count }
 
     /// 构成校验：与标准 25 枚配置比对
@@ -97,7 +100,7 @@ struct LayoutImportView: View {
 
     private var placeholder: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 14).fill(Color(hex: "#101218"))
+            RoundedRectangle(cornerRadius: 14).fill(panelBG)
             VStack(spacing: 8) {
                 Image(systemName: "photo.badge.arrow.down").font(.largeTitle).foregroundColor(.secondary)
                 Text("选一张布局卡截图（我方或队友）")
@@ -213,7 +216,7 @@ struct LayoutImportView: View {
                 .font(.caption2).foregroundColor(.secondary)
         }
         .padding(12)
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(hex: "#101218")))
+        .background(RoundedRectangle(cornerRadius: 12).fill(panelBG))
     }
 
     @ViewBuilder
