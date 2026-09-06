@@ -39,6 +39,7 @@ jobs:
           move SettingsView.swift SQJQTracker/Views/
           move RootTabView.swift SQJQTracker/Views/
           move BroadcastPicker.swift SQJQTracker/Views/
+          move LayoutImportView.swift SQJQTracker/Views/
           move SQJQTracker.entitlements SQJQTracker/
           move SampleHandler.swift BroadcastExtension/
           move BroadcastExtension.entitlements BroadcastExtension/
