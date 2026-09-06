@@ -73,6 +73,7 @@ final class GameSession: ObservableObject {
         analyzer.updateCorners(corners)
         analyzer.updateThreshold(threshold)
         applyCaptureSettings()
+        pip.stateProvider = { [weak self] in self?.currentPiPState() ?? PiPState() }
         pip.setup()
         FrameServer.start()
         startIdlePolling()
@@ -390,21 +391,42 @@ final class GameSession: ObservableObject {
             return
         }
         layoutPreload = pre
+        // 未开局的实时盘面立即点亮我方/队友布阵（开局后以识别为准，避免覆盖真实盘面）
+        if !roundActive {
+            var seeded = nodeStates
+            for (id, _) in pre {
+                if let n = BoardLayout.nodeByID[id], n.seat.isAlly {
+                    seeded[id] = NodeSnapshot(occupied: true, owner: n.seat)
+                }
+            }
+            nodeStates = seeded
+        }
         rebuild()
-        toast = "已套用布阵棋谱（\(pre.count) 枚我方/队友身份）"
+        toast = "已套用布阵棋谱（\(pre.count) 枚），实时棋盘已更新"
     }
 
     // MARK: - 悬浮窗
-    private func renderPiP() {
+    private func currentPiPState() -> PiPState {
         var nodes: [PiPNode] = []
         for n in BoardLayout.nodes {
             guard let s = nodeStates[n.id], s.occupied else { continue }
             nodes.append(PiPNode(x: CGFloat(n.col) / 16, y: CGFloat(n.row) / 16,
                                  seat: s.owner ?? n.seat, rank: engineSnapshot.identity[n.id]))
         }
-        pip.render(state: PiPState(summaries: engineSnapshot.summaries,
-                                   notes: engineSnapshot.notes,
-                                   nodes: nodes,
-                                   updatedAt: lastFrameAt))
+        func latestInference(_ seat: Seat) -> String {
+            let lines = engineSnapshot.notes.filter { $0.hasPrefix(seat.short + "#") }
+            return lines.isEmpty ? "" : lines.prefix(2).joined(separator: "\n")
+        }
+        return PiPState(summaries: engineSnapshot.summaries,
+                        notes: engineSnapshot.notes,
+                        nodes: nodes,
+                        updatedAt: lastFrameAt,
+                        roundActive: roundActive,
+                        inferenceLeft: latestInference(.leftEnemy),
+                        inferenceRight: latestInference(.rightEnemy))
+    }
+
+    private func renderPiP() {
+        pip.render(state: currentPiPState())
     }
 }
