@@ -165,25 +165,38 @@ final class PiPManager: NSObject, ObservableObject {
             let order: [Rank] = [.司令, .军长, .师长, .旅长, .团长, .营长, .连长, .排长, .工兵, .炸弹, .地雷, .军旗]
             let chipW = (half - 24) / 3
             let chipH = (390 - 30) / 4
-            for (idx, r) in order.enumerated() {
-                let row = idx / 3, col = idx % 3
-                let crect = CGRect(x: x0 + CGFloat(col) * (chipW + 12), y: 56 + CGFloat(row) * (chipH + 10),
-                                   width: chipW, height: chipH)
+            let f = UIFont.systemFont(ofSize: 44, weight: .bold)
+            for idx in 0..<12 {
+                let r = order[idx]
+                let row = idx / 3
+                let col = idx % 3
+                let cx0 = x0 + CGFloat(col) * (chipW + 12)
+                let cy0 = 56 + CGFloat(row) * (chipH + 10)
+                let crect = CGRect(x: cx0, y: cy0, width: chipW, height: chipH)
                 let dead = s?.deadKnown[r] ?? 0
                 let remaining = max(0, r.initialCount - dead)
                 let dim = remaining == 0
-                UIColor(white: 1, alpha: dim ? 0.04 : 0.10).setFill()
-                UIBezierPath(roundedRect: crect, cornerRadius: 10).fill()
+
+                let bgColor = dim ? UIColor(white: 1, alpha: 0.04) : UIColor(white: 1, alpha: 0.10)
+                bgColor.setFill()
+                let chipRect = UIBezierPath(roundedRect: crect, cornerRadius: 10)
+                chipRect.fill()
+
+                let charColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(white: 0.95, alpha: 1)
+                let numColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(red: 1.0, green: 0.27, blue: 0.27, alpha: 1)
                 let charText: String = r.short
-                let numText: String = "\(remaining)"
-                let f = UIFont.systemFont(ofSize: 44, weight: .bold)
-                let charAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: dim ? UIColor(white: 0.35, alpha: 1) : UIColor(white: 0.95, alpha: 1)]
-                let numAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: dim ? UIColor(white: 0.35, alpha: 1) : UIColor(red: 1.0, green: 0.27, blue: 0.27, alpha: 1)]
-                let cw2 = (charText as NSString).size(withAttributes: charAttrs).width
-                let nw2 = (numText as NSString).size(withAttributes: numAttrs).width
+                let numText: String = String(remaining)
+                let charAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: charColor]
+                let numAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: numColor]
+
+                let charNS = charText as NSString
+                let numNS = numText as NSString
+                let cw2 = charNS.size(withAttributes: charAttrs).width
+                let nw2 = numNS.size(withAttributes: numAttrs).width
                 let startX = crect.midX - (cw2 + nw2) / 2
-                (charText as NSString).draw(at: CGPoint(x: startX, y: crect.midY - 28), withAttributes: charAttrs)
-                (numText as NSString).draw(at: CGPoint(x: startX + cw2, y: crect.midY - 28), withAttributes: numAttrs)
+                let drawY = crect.midY - 28
+                charNS.draw(at: CGPoint(x: startX, y: drawY), withAttributes: charAttrs)
+                numNS.draw(at: CGPoint(x: startX + cw2, y: drawY), withAttributes: numAttrs)
             }
 
             // 判断框（结论特大字 + 候选彩色块）
@@ -279,26 +292,38 @@ final class PiPManager: NSObject, ObservableObject {
         let chipW = (rect.width - 32 - 20) / 3
         let chipY0 = rect.minY + 50
         let chipH = (rect.height - 50 - 24) / 4
-        for (idx, r) in order.enumerated() {
-            let row = idx / 3, col = idx % 3
-            let crect = CGRect(x: rect.minX + 16 + CGFloat(col) * (chipW + 10),
-                               y: chipY0 + CGFloat(row) * (chipH + 8),
-                               width: chipW, height: chipH)
+        let f = UIFont.systemFont(ofSize: 30, weight: .bold)
+        for idx in 0..<12 {
+            let r = order[idx]
+            let row = idx / 3
+            let col = idx % 3
+            let cx0 = rect.minX + 16 + CGFloat(col) * (chipW + 10)
+            let cy0 = chipY0 + CGFloat(row) * (chipH + 8)
+            let crect = CGRect(x: cx0, y: cy0, width: chipW, height: chipH)
             let dead = summary?.deadKnown[r] ?? 0
             let remaining = max(0, r.initialCount - dead)
             let dim = remaining == 0
-            UIColor(white: 1, alpha: dim ? 0.04 : 0.10).setFill()
-            UIBezierPath(roundedRect: crect, cornerRadius: 9).fill()
+
+            let bgColor = dim ? UIColor(white: 1, alpha: 0.04) : UIColor(white: 1, alpha: 0.10)
+            bgColor.setFill()
+            let chipRect = UIBezierPath(roundedRect: crect, cornerRadius: 9)
+            chipRect.fill()
+
+            let charColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(white: 0.95, alpha: 1)
+            let numColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(red: 1.0, green: 0.27, blue: 0.27, alpha: 1)
             let charText: String = r.short
-            let numText: String = "\(remaining)"
-            let f = UIFont.systemFont(ofSize: 30, weight: .bold)
-            let charAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: dim ? UIColor(white: 0.35, alpha: 1) : UIColor(white: 0.95, alpha: 1)]
-            let numAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: dim ? UIColor(white: 0.35, alpha: 1) : UIColor(red: 1.0, green: 0.27, blue: 0.27, alpha: 1)]
-            let cw2 = (charText as NSString).size(withAttributes: charAttrs).width
-            let nw2 = (numText as NSString).size(withAttributes: numAttrs).width
+            let numText: String = String(remaining)
+            let charAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: charColor]
+            let numAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: numColor]
+
+            let charNS = charText as NSString
+            let numNS = numText as NSString
+            let cw2 = charNS.size(withAttributes: charAttrs).width
+            let nw2 = numNS.size(withAttributes: numAttrs).width
             let startX = crect.midX - (cw2 + nw2) / 2
-            (charText as NSString).draw(at: CGPoint(x: startX, y: crect.midY - 18), withAttributes: charAttrs)
-            (numText as NSString).draw(at: CGPoint(x: startX + cw2, y: crect.midY - 18), withAttributes: numAttrs)
+            let drawY = crect.midY - 18
+            charNS.draw(at: CGPoint(x: startX, y: drawY), withAttributes: charAttrs)
+            numNS.draw(at: CGPoint(x: startX + cw2, y: drawY), withAttributes: numAttrs)
         }
     }
 
