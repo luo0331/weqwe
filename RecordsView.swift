@@ -91,7 +91,7 @@ struct RecordsView: View {
 
     private func deleteRecord(_ r: GameRecord) {
         if let idx = records.records.firstIndex(where: { $0.id == r.id }) {
-            records.remove(at: idx)
+            records.remove(at: IndexSet(integer: idx))
         }
     }
 
