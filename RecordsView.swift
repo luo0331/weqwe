@@ -13,46 +13,16 @@ struct RecordsView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if records.records.isEmpty {
-                    VStack(spacing: 10) {
-                        Image(systemName: "doc.text.magnifyingglass").font(.largeTitle).foregroundColor(.secondary)
-                        Text("还没有棋谱").bold()
-                        Text("点击右上角导入游戏截图或复盘图片，OCR 会自动识别棋子信息；也可以手输布阵棋谱（格式见详情页）。")
-                            .font(.caption).foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(30)
-                } else {
-                    List {
-                ForEach(records.records) { r in
-                    NavigationLink {
-                        RecordDetailView(record: r)
-                    } label: {
-                        row(r)
-                    }
-                    .swipeActions(edge: .leading) {
-                        Button {
-                            session.applyLayout(r)
-                        } label: {
-                            Label("引用", systemImage: "bolt.fill")
-                        }
-                        .tint(.blue)
-                    }
+            ScrollView {
+                VStack(spacing: 14) {
+                    LayoutImportView()
+                    recordsSection
                 }
-                .onDelete { records.remove(at: $0) }
-                    }
-                }
+                .padding(.horizontal, 12)
+                .padding(.bottom, 30)
             }
             .navigationTitle("棋谱库")
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    NavigationLink {
-                        LayoutImportView()
-                    } label: {
-                        Label("布阵导入", systemImage: "grid")
-                    }
-                }
                 ToolbarItem(placement: .primaryAction) {
                     PhotosPicker(selection: $pickerItems, matching: .images) {
                         Label("截图导入", systemImage: "plus.viewfinder")
@@ -75,6 +45,53 @@ struct RecordsView: View {
             .sheet(isPresented: $showEditor) {
                 RecordEditorSheet(initial: nil, initialText: ocrText)
             }
+        }
+    }
+
+    /// 棋谱列表（卡片式，嵌入页面底部）
+    private var recordsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("棋谱列表（\(records.records.count)）").font(.headline)
+            if records.records.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "doc.text.magnifyingglass").font(.largeTitle).foregroundColor(.secondary)
+                    Text("还没有棋谱").bold()
+                    Text("布阵导入「确认布阵」后自动存入棋谱；右上角可导入复盘截图做 OCR 统计。")
+                        .font(.caption).foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(20)
+            } else {
+                ForEach(records.records) { r in
+                    NavigationLink {
+                        RecordDetailView(record: r)
+                    } label: {
+                        row(r)
+                    }
+                    .contextMenu {
+                        Button {
+                            session.applyLayout(r)
+                        } label: {
+                            Label("引用到本局", systemImage: "bolt.fill")
+                        }
+                        Button(role: .destructive) {
+                            deleteRecord(r)
+                        } label: {
+                            Label("删除", systemImage: "trash")
+                        }
+                    }
+                }
+            }
+        }
+        .padding(12)
+        .background(Color(red: 0.063, green: 0.071, blue: 0.094))
+        .cornerRadius(12)
+    }
+
+    private func deleteRecord(_ r: GameRecord) {
+        if let idx = records.records.firstIndex(where: { $0.id == r.id }) {
+            records.remove(at: idx)
         }
     }
 
