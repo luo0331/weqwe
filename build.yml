@@ -48,9 +48,9 @@ jobs:
       - name: 安装 XcodeGen 并生成工程
         run: |
           brew install xcodegen
-          # 优先使用 Xcode 16 (runner 可能默认 15.4, 而 XcodeGen 2.46 生成的工程格式较新)
-          for d in /Applications/Xcode_16.*.app; do
-            [ -d "$d" ] && sudo xcode-select -s "$d/Contents/Developer" && break
+          # Xcode 16.3/16.4 的 Swift 驱动有 malformed-JSON bug；优先选 16.2/16.1，最后才 15.4
+          for d in /Applications/Xcode_16.2.app /Applications/Xcode_16.1.app /Applications/Xcode_16.0.1.app /Applications/Xcode_15.4.app; do
+            if [ -d "$d" ]; then sudo xcode-select -s "$d/Contents/Developer"; break; fi
           done
           xcodebuild -version
           if [ "${{ matrix.variant }}" = "lite" ]; then
@@ -64,6 +64,7 @@ jobs:
           xcodebuild -project "$PROJ" -scheme SQJQTracker -configuration Release \
             -sdk iphoneos -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            COMPILER_INDEX_STORE_ENABLE=NO \
             SWIFT_USE_INTEGRATED_DRIVER=NO 2>&1 | tee build.log
 
       - name: 提取编译错误
