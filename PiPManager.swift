@@ -174,18 +174,16 @@ final class PiPManager: NSObject, ObservableObject {
                 let dim = remaining == 0
                 UIColor(white: 1, alpha: dim ? 0.04 : 0.10).setFill()
                 UIBezierPath(roundedRect: crect, cornerRadius: 10).fill()
-                let cStr = SHORT[r] as NSString
-                let nStr = "\(remaining)" as NSString
+                let charText: String = r.short
+                let numText: String = "\(remaining)"
                 let f = UIFont.systemFont(ofSize: 44, weight: .bold)
-                let cw2 = cStr.size(withAttributes: [.font: f]).width
-                let nw2 = nStr.size(withAttributes: [.font: f]).width
+                let charAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: dim ? UIColor(white: 0.35, alpha: 1) : UIColor(white: 0.95, alpha: 1)]
+                let numAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: dim ? UIColor(white: 0.35, alpha: 1) : UIColor(red: 1.0, green: 0.27, blue: 0.27, alpha: 1)]
+                let cw2 = (charText as NSString).size(withAttributes: charAttrs).width
+                let nw2 = (numText as NSString).size(withAttributes: numAttrs).width
                 let startX = crect.midX - (cw2 + nw2) / 2
-                let charColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(white: 0.95, alpha: 1)
-                let numColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(red: 1.0, green: 0.27, blue: 0.27, alpha: 1)
-                cStr.draw(at: CGPoint(x: startX, y: crect.midY - 28),
-                          withAttributes: [.font: f, .foregroundColor: charColor])
-                nStr.draw(at: CGPoint(x: startX + cw2, y: crect.midY - 28),
-                          withAttributes: [.font: f, .foregroundColor: numColor])
+                (charText as NSString).draw(at: CGPoint(x: startX, y: crect.midY - 28), withAttributes: charAttrs)
+                (numText as NSString).draw(at: CGPoint(x: startX + cw2, y: crect.midY - 28), withAttributes: numAttrs)
             }
 
             // 判断框（结论特大字 + 候选彩色块）
@@ -291,18 +289,16 @@ final class PiPManager: NSObject, ObservableObject {
             let dim = remaining == 0
             UIColor(white: 1, alpha: dim ? 0.04 : 0.10).setFill()
             UIBezierPath(roundedRect: crect, cornerRadius: 9).fill()
-            let cStr = SHORT[r] as NSString
-            let nStr = "\(remaining)" as NSString
+            let charText: String = r.short
+            let numText: String = "\(remaining)"
             let f = UIFont.systemFont(ofSize: 30, weight: .bold)
-            let cw2 = cStr.size(withAttributes: [.font: f]).width
-            let nw2 = nStr.size(withAttributes: [.font: f]).width
+            let charAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: dim ? UIColor(white: 0.35, alpha: 1) : UIColor(white: 0.95, alpha: 1)]
+            let numAttrs: [NSAttributedString.Key: Any] = [.font: f, .foregroundColor: dim ? UIColor(white: 0.35, alpha: 1) : UIColor(red: 1.0, green: 0.27, blue: 0.27, alpha: 1)]
+            let cw2 = (charText as NSString).size(withAttributes: charAttrs).width
+            let nw2 = (numText as NSString).size(withAttributes: numAttrs).width
             let startX = crect.midX - (cw2 + nw2) / 2
-            let charColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(white: 0.95, alpha: 1)
-            let numColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(red: 1.0, green: 0.27, blue: 0.27, alpha: 1)
-            cStr.draw(at: CGPoint(x: startX, y: crect.midY - 18),
-                      withAttributes: [.font: f, .foregroundColor: charColor])
-            nStr.draw(at: CGPoint(x: startX + cw2, y: crect.midY - 18),
-                      withAttributes: [.font: f, .foregroundColor: numColor])
+            (charText as NSString).draw(at: CGPoint(x: startX, y: crect.midY - 18), withAttributes: charAttrs)
+            (numText as NSString).draw(at: CGPoint(x: startX + cw2, y: crect.midY - 18), withAttributes: numAttrs)
         }
     }
 
