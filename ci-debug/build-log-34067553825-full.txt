@@ -1,0 +1,428 @@
+Command line invocation:
+    /Applications/Xcode_16.2.app/Contents/Developer/usr/bin/xcodebuild -project SQJQTracker.xcodeproj -scheme SQJQTracker -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= SWIFT_USE_INTEGRATED_DRIVER=NO
+
+User defaults from command line:
+    IDEDerivedDataPathOverride = /Users/runner/work/weqwe/weqwe/build
+    IDEPackageSupportUseBuiltinSCM = YES
+
+Build settings from command line:
+    CODE_SIGN_IDENTITY = 
+    CODE_SIGNING_ALLOWED = NO
+    CODE_SIGNING_REQUIRED = NO
+    SDKROOT = iphoneos18.2
+    SWIFT_USE_INTEGRATED_DRIVER = NO
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:0000FE00-7CCC9802DA488B9F, name:My Mac }
+{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+Prepare packages
+
+note: Using codesigning identity override: 
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (2 targets)
+    Target 'SQJQTracker' in project 'SQJQTracker'
+        ➜ Explicit dependency on target 'BroadcastExtension' in project 'SQJQTracker'
+    Target 'BroadcastExtension' in project 'SQJQTracker' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: cb5895bbfb7795ecc249d7cca524969d
+Build description path: /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/XCBuildData/cb5895bbfb7795ecc249d7cca524969d.xcbuilddata
+CreateBuildDirectory /Users/runner/work/weqwe/weqwe/build/Build/Products
+    cd /Users/runner/work/weqwe/weqwe/SQJQTracker.xcodeproj
+    builtin-create-build-directory /Users/runner/work/weqwe/weqwe/build/Build/Products
+
+CreateBuildDirectory /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex
+    cd /Users/runner/work/weqwe/weqwe/SQJQTracker.xcodeproj
+    builtin-create-build-directory /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex
+
+ClangStatCache /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk /Users/runner/work/weqwe/weqwe/build/SDKStatCaches.noindex/iphoneos18.2-22C146-6f6929c68f51360d5ca70a73a7e0c2f9.sdkstatcache
+    cd /Users/runner/work/weqwe/weqwe/SQJQTracker.xcodeproj
+    /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk -o /Users/runner/work/weqwe/weqwe/build/SDKStatCaches.noindex/iphoneos18.2-22C146-6f6929c68f51360d5ca70a73a7e0c2f9.sdkstatcache
+
+CreateBuildDirectory /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos
+    cd /Users/runner/work/weqwe/weqwe/SQJQTracker.xcodeproj
+    builtin-create-build-directory /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker-648c9261e49fc49ed3085423a5d663b7-VFS-iphoneos/all-product-headers.yaml
+    cd /Users/runner/work/weqwe/weqwe/SQJQTracker.xcodeproj
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker-648c9261e49fc49ed3085423a5d663b7-VFS-iphoneos/all-product-headers.yaml
+
+CreateBuildDirectory /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
+    cd /Users/runner/work/weqwe/weqwe/SQJQTracker.xcodeproj
+    builtin-create-build-directory /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker.hmap (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker.hmap
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker.DependencyMetadataFileList (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-project-headers.hmap (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-own-target-headers.hmap (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-generated-files.hmap (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-all-target-headers.hmap (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-all-non-framework-target-headers.hmap (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker_const_extract_protocols.json (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker.SwiftFileList (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker.SwiftConstValuesFileList (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker.LinkFileList (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker-OutputFileMap.json (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension_const_extract_protocols.json (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.SwiftFileList (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.SwiftFileList
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.SwiftConstValuesFileList (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.LinkFileList (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.LinkFileList
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension-OutputFileMap.json (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension.hmap (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension.hmap
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension.DependencyMetadataFileList (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-project-headers.hmap (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-project-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-own-target-headers.hmap (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-generated-files.hmap (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-generated-files.hmap
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-all-target-headers.hmap (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-all-non-framework-target-headers.hmap (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    write-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-all-non-framework-target-headers.hmap
+
+MkDir /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/SQJQTracker.app/PlugIns (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /bin/mkdir -p /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/SQJQTracker.app/PlugIns
+
+MkDir /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/SQJQTracker.app (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /bin/mkdir -p /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/SQJQTracker.app
+
+MkDir /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /bin/mkdir -p /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex
+
+ProcessInfoPlistFile /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex/Info.plist /Users/runner/work/weqwe/weqwe/BroadcastExtension/Info.plist (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    builtin-infoPlistUtility /Users/runner/work/weqwe/weqwe/BroadcastExtension/Info.plist -producttype com.apple.product-type.app-extension -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex/Info.plist
+
+CompileSwiftSources normal arm64 com.apple.xcode.tools.swift.compiler (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name BroadcastExtension -O -whole-module-optimization -enforce-exclusivity\=checked @/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/weqwe/weqwe/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -application-extension -swift-version 5 -I /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos -F /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos -parse-as-library -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/work/weqwe/weqwe/build/SDKStatCaches.noindex/iphoneos18.2-22C146-6f6929c68f51360d5ca70a73a7e0c2f9.sdkstatcache -output-file-map /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension-OutputFileMap.json -parseable-output -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.swiftmodule -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-generated-files.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-own-target-headers.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-project-headers.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension-Swift.h -working-directory /Users/runner/work/weqwe/weqwe -no-emit-module-separately-wmo
+
+CompileSwift normal arm64 /Users/runner/work/weqwe/weqwe/BroadcastExtension/SampleHandler.swift (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/runner/work/weqwe/weqwe/BroadcastExtension/SampleHandler.swift -emit-module-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.swiftmodule -emit-module-doc-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.swiftdoc -emit-module-source-info-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.swiftsourceinfo -emit-dependencies-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension-master.d -emit-const-values-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension-master.swiftconstvalues -serialize-diagnostics-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension-master.dia -emit-objc-header-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension-Swift.h -emit-abi-descriptor-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.abi.json -target arm64-apple-ios16.0 -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk -I /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos -F /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos -application-extension -g -debug-info-format\=dwarf -dwarf-version\=4 -module-cache-path /Users/runner/work/weqwe/weqwe/build/ModuleCache.noindex -swift-version 5 -enforce-exclusivity\=checked -O -new-driver-path /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-driver -serialize-debugging-options -const-gather-protocols-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension_const_extract_protocols.json -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -empty-abi-descriptor -Xcc -working-directory -Xcc /Users/runner/work/weqwe/weqwe -resource-dir /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift -file-compilation-dir /Users/runner/work/weqwe/weqwe -Xcc -ivfsstatcache -Xcc /Users/runner/work/weqwe/weqwe/build/SDKStatCaches.noindex/iphoneos18.2-22C146-6f6929c68f51360d5ca70a73a7e0c2f9.sdkstatcache -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-generated-files.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-own-target-headers.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension-project-headers.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/DerivedSources -module-name BroadcastExtension -disable-clang-spi -target-sdk-version 18.2 -target-sdk-name iphoneos18.2 -external-plugin-path /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins\#/Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -external-plugin-path /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/local/lib/swift/host/plugins\#/Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -plugin-path /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins -plugin-path /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/lib/swift/host/plugins -enable-default-cmo -parse-as-library -num-threads 3 -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/SampleHandler.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/SampleHandler.o
+/Users/runner/work/weqwe/weqwe/BroadcastExtension/SampleHandler.swift:92:13: warning: variable 'head' was never mutated; consider changing to 'let' constant
+90 |         let n = UInt32(jpeg.count)
+91 |         let s = UInt32(seq)
+92 |         var head: [UInt8] = [
+   |             `- warning: variable 'head' was never mutated; consider changing to 'let' constant
+93 |             UInt8((n >> 24) & 255), UInt8((n >> 16) & 255), UInt8((n >> 8) & 255), UInt8(n & 255),
+94 |             UInt8((s >> 24) & 255), UInt8((s >> 16) & 255), UInt8((s >> 8) & 255), UInt8(s & 255),
+
+SwiftMergeGeneratedHeaders /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/DerivedSources/BroadcastExtension-Swift.h /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension-Swift.h (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    builtin-swiftHeaderTool -arch arm64 /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension-Swift.h -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/DerivedSources/BroadcastExtension-Swift.h
+
+Copy /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.swiftmodule/arm64-apple-ios.swiftmodule /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.swiftmodule (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.swiftmodule /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.swiftmodule/arm64-apple-ios.swiftmodule
+
+Copy /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.swiftmodule/arm64-apple-ios.swiftdoc /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.swiftdoc (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.swiftdoc /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.swiftmodule/arm64-apple-ios.swiftdoc
+
+Copy /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.swiftmodule/arm64-apple-ios.abi.json /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.abi.json (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.abi.json /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.swiftmodule/arm64-apple-ios.abi.json
+
+Copy /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.swiftsourceinfo (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.swiftsourceinfo /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.swiftmodule/Project/arm64-apple-ios.swiftsourceinfo
+
+Ld /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex/BroadcastExtension normal (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios16.0 -isysroot /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk -Os -L/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -L/Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos -F/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/EagerLinkingTBDs/Release-iphoneos -F/Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos -filelist /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.LinkFileList -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -rpath -Xlinker @executable_path/../../Frameworks -dead_strip -Xlinker -object_path_lto -Xlinker /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension_lto.o -e _NSExtensionMain -fapplication-extension -fobjc-link-runtime -L/Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphoneos -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.swiftmodule -Xlinker -dependency_info -Xlinker /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension_dependency_info.dat -o /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex/BroadcastExtension
+
+CompileSwiftSources normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name SQJQTracker -O -whole-module-optimization -enforce-exclusivity\=checked @/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker.SwiftFileList -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk -target arm64-apple-ios16.0 -g -module-cache-path /Users/runner/work/weqwe/weqwe/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 5 -I /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos -F /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos -c -num-threads 3 -Xcc -ivfsstatcache -Xcc /Users/runner/work/weqwe/weqwe/build/SDKStatCaches.noindex/iphoneos18.2-22C146-6f6929c68f51360d5ca70a73a7e0c2f9.sdkstatcache -output-file-map /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker-OutputFileMap.json -parseable-output -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker.swiftmodule -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker_const_extract_protocols.json -Xcc -iquote -Xcc /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-generated-files.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-own-target-headers.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-project-headers.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/DerivedSources -emit-objc-header -emit-objc-header-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker-Swift.h -working-directory /Users/runner/work/weqwe/weqwe -no-emit-module-separately-wmo
+CompileSwift normal arm64 (in target 'SQJQTracker' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/runner/work/weqwe/weqwe/SQJQTracker/Core/Board.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Views/BoardCanvasView.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Views/BroadcastPicker.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Views/CalibrationView.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Session/CameraManager.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Views/DashboardView.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Session/FrameServer.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Core/FrameStore.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Core/GameEvent.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Session/GameSession.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Core/GlyphStore.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Core/ImageStat.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Core/InferenceEngine.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Views/LayoutImportView.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Core/OCREngine.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Session/PiPManager.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Core/Rank.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Core/RecordStore.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Views/RecordsView.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Views/RootTabView.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/App/SQJQTrackerApp.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Views/SettingsView.swift /Users/runner/work/weqwe/weqwe/SQJQTracker/Core/VisionPipeline.swift -supplementary-output-file-map /var/folders/s6/5hzmn6lx4dz5nxs7k_0slzph0000gn/T/TemporaryDirectory.ZRFCk9/supplementaryOutputs-1 -target arm64-apple-ios16.0 -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk -I /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos -F /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos -g -debug-info-format\=dwarf -dwarf-version\=4 -module-cache-path /Users/runner/work/weqwe/weqwe/build/ModuleCache.noindex -swift-version 5 -enforce-exclusivity\=checked -O -new-driver-path /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-driver -serialize-debugging-options -const-gather-protocols-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTracker_const_extract_protocols.json -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -empty-abi-descriptor -Xcc -working-directory -Xcc /Users/runner/work/weqwe/weqwe -resource-dir /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift -file-compilation-dir /Users/runner/work/weqwe/weqwe -Xcc -ivfsstatcache -Xcc /Users/runner/work/weqwe/weqwe/build/SDKStatCaches.noindex/iphoneos18.2-22C146-6f6929c68f51360d5ca70a73a7e0c2f9.sdkstatcache -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-generated-files.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-own-target-headers.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-all-target-headers.hmap -Xcc -iquote -Xcc /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/SQJQTracker-project-headers.hmap -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/include -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/DerivedSources-normal/arm64 -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/DerivedSources/arm64 -Xcc -I/Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/DerivedSources -module-name SQJQTracker -disable-clang-spi -target-sdk-version 18.2 -target-sdk-name iphoneos18.2 -external-plugin-path /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/lib/swift/host/plugins\#/Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -external-plugin-path /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/local/lib/swift/host/plugins\#/Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/swift-plugin-server -plugin-path /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins -plugin-path /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/local/lib/swift/host/plugins -enable-default-cmo -num-threads 3 -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/Board.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/BoardCanvasView.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/BroadcastPicker.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/CalibrationView.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/CameraManager.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/DashboardView.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/FrameServer.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/FrameStore.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/GameEvent.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/GameSession.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/GlyphStore.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/ImageStat.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/InferenceEngine.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/LayoutImportView.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/OCREngine.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/PiPManager.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/Rank.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/RecordStore.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/RecordsView.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/RootTabView.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTrackerApp.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SettingsView.o -o /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/VisionPipeline.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/Board.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/BoardCanvasView.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/BroadcastPicker.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/CalibrationView.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/CameraManager.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/DashboardView.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/FrameServer.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/FrameStore.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/GameEvent.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/GameSession.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/GlyphStore.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/ImageStat.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/InferenceEngine.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/LayoutImportView.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/OCREngine.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/PiPManager.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/Rank.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/RecordStore.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/RecordsView.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/RootTabView.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SQJQTrackerApp.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/SettingsView.o -index-unit-output-path /SQJQTracker.build/Release-iphoneos/SQJQTracker.build/Objects-normal/arm64/VisionPipeline.o
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Views/BoardCanvasView.swift:95:1: warning: extension declares a conformance of imported type 'Int' to imported protocol 'Identifiable'; this will not behave correctly if the owners of 'Swift' introduce this conformance in the future
+ 93 | }
+ 94 | 
+ 95 | extension Int: Identifiable {
+    | |- warning: extension declares a conformance of imported type 'Int' to imported protocol 'Identifiable'; this will not behave correctly if the owners of 'Swift' introduce this conformance in the future
+    | `- note: add '@retroactive' to silence this warning
+ 96 |     public var id: Int { self }
+ 97 | }
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Views/LayoutImportView.swift:445:43: warning: reference to captured var 'result' in concurrently-executing code; this is an error in the Swift 6 language mode
+443 |             let gCount = byGlyph, vCount = byVision
+444 |             await MainActor.run {
+445 |                 cellsBySeat[activeSeat] = result
+    |                                           `- warning: reference to captured var 'result' in concurrently-executing code; this is an error in the Swift 6 language mode
+446 |                 ocrRunning = false
+447 |                 status = "识别完成：\(result.compactMap { $0 }.count)/25（字模 \(gCount) + Vision \(vCount)）—— 错的点格子改"
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Views/LayoutImportView.swift:447:44: warning: reference to captured var 'result' in concurrently-executing code; this is an error in the Swift 6 language mode
+445 |                 cellsBySeat[activeSeat] = result
+446 |                 ocrRunning = false
+447 |                 status = "识别完成：\(result.compactMap { $0 }.count)/25（字模 \(gCount) + Vision \(vCount)）—— 错的点格子改"
+    |                                  `- warning: reference to captured var 'result' in concurrently-executing code; this is an error in the Swift 6 language mode
+448 |             }
+449 |         }
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Views/LayoutImportView.swift:422:35: warning: expression is 'async' but is not marked with 'await'; this is an error in the Swift 6 language mode
+420 |             var byGlyph = 0
+421 |             var byVision = 0
+422 |             for i in 0..<30 where !LayoutImportView.campSet.contains(i) {
+    |                                   |`- note: property access is 'async'
+    |                                   `- warning: expression is 'async' but is not marked with 'await'; this is an error in the Swift 6 language mode
+423 |                 let rect = LayoutImportView.cellRect(i, tl: t, br: b,
+424 |                                                      imageSize: CGSize(width: img.width, height: img.height), inset: 0.30)
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Views/LayoutImportView.swift:423:28: warning: expression is 'async' but is not marked with 'await'; this is an error in the Swift 6 language mode
+421 |             var byVision = 0
+422 |             for i in 0..<30 where !LayoutImportView.campSet.contains(i) {
+423 |                 let rect = LayoutImportView.cellRect(i, tl: t, br: b,
+    |                            |- warning: expression is 'async' but is not marked with 'await'; this is an error in the Swift 6 language mode
+    |                            `- note: calls to static method 'cellRect(_:tl:br:imageSize:inset:)' from outside of its actor context are implicitly asynchronous
+424 |                                                      imageSize: CGSize(width: img.width, height: img.height), inset: 0.30)
+425 |                 // 1) 字模优先（学过的字，离线极准）
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Session/PiPManager.swift:407:10: warning: main actor-isolated instance method 'pictureInPictureControllerDidStartPictureInPicture' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+404 | }
+405 | 
+406 | extension PiPManager: AVPictureInPictureControllerDelegate {
+    |                       `- note: add '@preconcurrency' to the 'AVPictureInPictureControllerDelegate' conformance to defer isolation checking to run time
+407 |     func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+    |          |- warning: main actor-isolated instance method 'pictureInPictureControllerDidStartPictureInPicture' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+    |          `- note: add 'nonisolated' to 'pictureInPictureControllerDidStartPictureInPicture' to make this instance method not isolated to the actor
+408 |         isActive = true
+409 |     }
+
+AVKit.AVPictureInPictureControllerDelegate:4:19: note: 'pictureInPictureControllerDidStartPictureInPicture' declared here
+ 2 | public protocol AVPictureInPictureControllerDelegate : NSObjectProtocol {
+ 3 |     optional func pictureInPictureControllerWillStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController)
+ 4 |     optional func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController)
+   |                   `- note: 'pictureInPictureControllerDidStartPictureInPicture' declared here
+ 5 |     optional func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: any Error)
+ 6 |     @available(swift, obsoleted: 4.2, renamed: "pictureInPictureController(_:failedToStartPictureInPictureWithError:)")
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Session/PiPManager.swift:411:10: warning: main actor-isolated instance method 'pictureInPictureControllerDidStopPictureInPicture' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+409 |     }
+410 | 
+411 |     func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+    |          |- warning: main actor-isolated instance method 'pictureInPictureControllerDidStopPictureInPicture' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+    |          `- note: add 'nonisolated' to 'pictureInPictureControllerDidStopPictureInPicture' to make this instance method not isolated to the actor
+412 |         isActive = false
+413 |     }
+
+AVKit.AVPictureInPictureControllerDelegate:9:19: note: 'pictureInPictureControllerDidStopPictureInPicture' declared here
+ 7 |     optional func picture(_ pictureInPictureController: AVPictureInPictureController, failedToStartPictureInPictureWithError error: any Error)
+ 8 |     optional func pictureInPictureControllerWillStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController)
+ 9 |     optional func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController)
+   |                   `- note: 'pictureInPictureControllerDidStopPictureInPicture' declared here
+10 |     optional func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void)
+11 |     optional func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController) async -> Bool
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Session/PiPManager.swift:417:10: warning: main actor-isolated instance method 'pictureInPictureController(_:setPlaying:)' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+414 | }
+415 | 
+416 | extension PiPManager: AVPictureInPictureSampleBufferPlaybackDelegate {
+    |                       `- note: add '@preconcurrency' to the 'AVPictureInPictureSampleBufferPlaybackDelegate' conformance to defer isolation checking to run time
+417 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, setPlaying playing: Bool) {}
+    |          |- warning: main actor-isolated instance method 'pictureInPictureController(_:setPlaying:)' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+    |          `- note: add 'nonisolated' to 'pictureInPictureController(_:setPlaying:)' to make this instance method not isolated to the actor
+418 | 
+419 |     func pictureInPictureControllerTimeRangeForPlayback(_ pictureInPictureController: AVPictureInPictureController) -> CMTimeRange {
+
+AVKit.AVPictureInPictureSampleBufferPlaybackDelegate:3:10: note: 'pictureInPictureController(_:setPlaying:)' declared here
+ 1 | @available(iOS 15.0, *)
+ 2 | public protocol AVPictureInPictureSampleBufferPlaybackDelegate : NSObjectProtocol {
+ 3 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, setPlaying playing: Bool)
+   |          `- note: 'pictureInPictureController(_:setPlaying:)' declared here
+ 4 |     func pictureInPictureControllerTimeRangeForPlayback(_ pictureInPictureController: AVPictureInPictureController) -> CMTimeRange
+ 5 |     func pictureInPictureControllerIsPlaybackPaused(_ pictureInPictureController: AVPictureInPictureController) -> Bool
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Session/PiPManager.swift:419:10: warning: main actor-isolated instance method 'pictureInPictureControllerTimeRangeForPlayback' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+417 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, setPlaying playing: Bool) {}
+418 | 
+419 |     func pictureInPictureControllerTimeRangeForPlayback(_ pictureInPictureController: AVPictureInPictureController) -> CMTimeRange {
+    |          |- warning: main actor-isolated instance method 'pictureInPictureControllerTimeRangeForPlayback' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+    |          `- note: add 'nonisolated' to 'pictureInPictureControllerTimeRangeForPlayback' to make this instance method not isolated to the actor
+420 |         CMTimeRange(start: .negativeInfinity, duration: .positiveInfinity)
+421 |     }
+
+AVKit.AVPictureInPictureSampleBufferPlaybackDelegate:4:10: note: 'pictureInPictureControllerTimeRangeForPlayback' declared here
+ 2 | public protocol AVPictureInPictureSampleBufferPlaybackDelegate : NSObjectProtocol {
+ 3 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, setPlaying playing: Bool)
+ 4 |     func pictureInPictureControllerTimeRangeForPlayback(_ pictureInPictureController: AVPictureInPictureController) -> CMTimeRange
+   |          `- note: 'pictureInPictureControllerTimeRangeForPlayback' declared here
+ 5 |     func pictureInPictureControllerIsPlaybackPaused(_ pictureInPictureController: AVPictureInPictureController) -> Bool
+ 6 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions)
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Session/PiPManager.swift:423:10: warning: main actor-isolated instance method 'pictureInPictureControllerIsPlaybackPaused' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+421 |     }
+422 | 
+423 |     func pictureInPictureControllerIsPlaybackPaused(_ pictureInPictureController: AVPictureInPictureController) -> Bool {
+    |          |- warning: main actor-isolated instance method 'pictureInPictureControllerIsPlaybackPaused' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+    |          `- note: add 'nonisolated' to 'pictureInPictureControllerIsPlaybackPaused' to make this instance method not isolated to the actor
+424 |         false
+425 |     }
+
+AVKit.AVPictureInPictureSampleBufferPlaybackDelegate:5:10: note: 'pictureInPictureControllerIsPlaybackPaused' declared here
+ 3 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, setPlaying playing: Bool)
+ 4 |     func pictureInPictureControllerTimeRangeForPlayback(_ pictureInPictureController: AVPictureInPictureController) -> CMTimeRange
+ 5 |     func pictureInPictureControllerIsPlaybackPaused(_ pictureInPictureController: AVPictureInPictureController) -> Bool
+   |          `- note: 'pictureInPictureControllerIsPlaybackPaused' declared here
+ 6 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions)
+ 7 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, skipByInterval skipInterval: CMTime, completion completionHandler: @escaping () -> Void)
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Session/PiPManager.swift:431:10: warning: main actor-isolated instance method 'pictureInPictureController(_:didTransitionToRenderSize:)' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+429 |     }
+430 | 
+431 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions) {
+    |          |- warning: main actor-isolated instance method 'pictureInPictureController(_:didTransitionToRenderSize:)' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+    |          `- note: add 'nonisolated' to 'pictureInPictureController(_:didTransitionToRenderSize:)' to make this instance method not isolated to the actor
+432 |         // 窗口小 → 简洁大字版；窗口放大 → 详细明细版
+433 |         compactMode = newRenderSize.width < 640
+
+AVKit.AVPictureInPictureSampleBufferPlaybackDelegate:6:10: note: 'pictureInPictureController(_:didTransitionToRenderSize:)' declared here
+ 4 |     func pictureInPictureControllerTimeRangeForPlayback(_ pictureInPictureController: AVPictureInPictureController) -> CMTimeRange
+ 5 |     func pictureInPictureControllerIsPlaybackPaused(_ pictureInPictureController: AVPictureInPictureController) -> Bool
+ 6 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions)
+   |          `- note: 'pictureInPictureController(_:didTransitionToRenderSize:)' declared here
+ 7 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, skipByInterval skipInterval: CMTime, completion completionHandler: @escaping () -> Void)
+ 8 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, skipByInterval skipInterval: CMTime) async
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Session/PiPManager.swift:427:10: warning: main actor-isolated instance method 'pictureInPictureController(_:skipByInterval:completion:)' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+425 |     }
+426 | 
+427 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, skipByInterval skipInterval: CMTime, completion completionHandler: @escaping () -> Void) {
+    |          |- warning: main actor-isolated instance method 'pictureInPictureController(_:skipByInterval:completion:)' cannot be used to satisfy nonisolated protocol requirement; this is an error in the Swift 6 language mode
+    |          `- note: add 'nonisolated' to 'pictureInPictureController(_:skipByInterval:completion:)' to make this instance method not isolated to the actor
+428 |         completionHandler()
+429 |     }
+
+AVKit.AVPictureInPictureSampleBufferPlaybackDelegate:7:10: note: 'pictureInPictureController(_:skipByInterval:completion:)' declared here
+ 5 |     func pictureInPictureControllerIsPlaybackPaused(_ pictureInPictureController: AVPictureInPictureController) -> Bool
+ 6 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions)
+ 7 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, skipByInterval skipInterval: CMTime, completion completionHandler: @escaping () -> Void)
+   |          `- note: 'pictureInPictureController(_:skipByInterval:completion:)' declared here
+ 8 |     func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, skipByInterval skipInterval: CMTime) async
+ 9 |     @available(swift, obsoleted: 3, renamed: "pictureInPictureController(_:skipByInterval:completion:)")
+
+/Users/runner/work/weqwe/weqwe/SQJQTracker/Views/RecordsView.swift:94:32: error: cannot convert value of type 'Array<GameRecord>.Index' (aka 'Int') to expected argument type 'IndexSet'
+ 92 |     private func deleteRecord(_ r: GameRecord) {
+ 93 |         if let idx = records.records.firstIndex(where: { $0.id == r.id }) {
+ 94 |             records.remove(at: idx)
+    |                                `- error: cannot convert value of type 'Array<GameRecord>.Index' (aka 'Int') to expected argument type 'IndexSet'
+ 95 |         }
+ 96 |     }
+
+GenerateDSYMFile /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex.dSYM /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex/BroadcastExtension (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/dsymutil /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex/BroadcastExtension -o /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex.dSYM
+
+ExtractAppIntentsMetadata (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --output /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex --toolchain-dir /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name BroadcastExtension --sdk-root /Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.2.sdk --xcode-version 16C5032a --platform-family iOS --deployment-target 16.0 --bundle-identifier com.sqjq.tracker.extension --target-triple arm64-apple-ios16.0 --binary-file /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex/BroadcastExtension --dependency-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension_dependency_info.dat --stringsdata-file /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.SwiftFileList --metadata-file-list /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/BroadcastExtension.DependencyMetadataFileList --swift-const-vals-list /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/Objects-normal/arm64/BroadcastExtension.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --validate-assistant-intents
+note: Metadata extraction skipped. No AppIntents.framework dependency found. (in target 'BroadcastExtension' from project 'SQJQTracker')
+
+AppIntentsSSUTraining (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /Applications/Xcode_16.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex/Info.plist --temp-dir-path /Users/runner/work/weqwe/weqwe/build/Build/Intermediates.noindex/SQJQTracker.build/Release-iphoneos/BroadcastExtension.build/ssu --bundle-id com.sqjq.tracker.extension --product-path /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex --extracted-metadata-path /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex/Metadata.appintents --archive-ssu-assets
+2026-09-06 23:41:11.275 appintentsnltrainingprocessor[7508:24158] Parsing options for appintentsnltrainingprocessor
+2026-09-06 23:41:11.278 appintentsnltrainingprocessor[7508:24158] No AppShortcuts found - Skipping.
+
+RegisterExecutionPolicyException /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    builtin-RegisterExecutionPolicyException /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex
+
+Touch /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex (in target 'BroadcastExtension' from project 'SQJQTracker')
+    cd /Users/runner/work/weqwe/weqwe
+    /usr/bin/touch -c /Users/runner/work/weqwe/weqwe/build/Build/Products/Release-iphoneos/BroadcastExtension.appex
+
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'SQJQTracker' from project 'SQJQTracker')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'BroadcastExtension' from project 'SQJQTracker')
+** BUILD FAILED **
+
+
+The following build commands failed:
+	CompileSwift normal arm64 (in target 'SQJQTracker' from project 'SQJQTracker')
+	CompileSwiftSources normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SQJQTracker' from project 'SQJQTracker')
+	Building project SQJQTracker with scheme SQJQTracker and configuration Release
+(3 failures)
