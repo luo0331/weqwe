@@ -48,6 +48,20 @@ jobs:
       - name: 安装 XcodeGen 并生成工程
         run: |
           brew install xcodegen
+          # 优先选已知可靠的 Xcode 16.0~16.2（16.3/16.4 的 Swift 驱动有 malformed-JSON bug）
+          XSEL=""
+          for d in Xcode_16.2 Xcode_16.1 Xcode_16.0.1 Xcode_16.0; do
+            if [ -d "/Applications/$d.app" ]; then XSEL="/Applications/$d.app"; break; fi
+          done
+          EXTRA_FLAGS=""
+          if [ -z "$XSEL" ] && [ -d "/Applications/Xcode_15.4.app" ]; then
+            XSEL="/Applications/Xcode_15.4.app"
+          fi
+          if [ -z "$XSEL" ]; then
+            EXTRA_FLAGS="SWIFT_USE_INTEGRATED_DRIVER=NO"
+          fi
+          if [ -n "$XSEL" ]; then sudo xcode-select -s "$XSEL/Contents/Developer"; fi
+          xcodebuild -version
           if [ "${{ matrix.variant }}" = "lite" ]; then
             xcodegen generate -s project.lite.yml
             PROJ="SQJQTrackerLite.xcodeproj"
@@ -55,22 +69,37 @@ jobs:
             xcodegen generate
             PROJ="SQJQTracker.xcodeproj"
           fi
-          # XcodeGen 2.46 会忽略 objectVersion 设置、生成格式 77（默认 Xcode 15.4 读不了），强制降回 56
-          sed -i '' -E 's/objectVersion = [0-9]+/objectVersion = 56/' "$PROJ/project.pbxproj"
-          echo "工程格式: $(grep -o 'objectVersion = [0-9]*' "$PROJ/project.pbxproj" | head -1)"
           set -o pipefail
           xcodebuild -project "$PROJ" -scheme SQJQTracker -configuration Release \
             -sdk iphoneos -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            COMPILER_INDEX_STORE_ENABLE=NO $EXTRA_FLAGS \
             2>&1 | tee build.log
 
       - name: 提取编译错误
         if: failure()
         run: |
-          echo "========== 本轮全部编译错误 (自动提炼) =========="
-          grep -E "error:" build.log | sort -u | head -80 || echo "(未匹配到 error 行)"
-          echo "========== 日志末尾 40 行 =========="
-          tail -40 build.log || true
+          echo "========== error 行汇总 =========="
+          grep -E "error:" build.log | sort -u | head -60 || echo "(无 error: 行)"
+          echo "========== 本轮使用的 Xcode =========="
+          grep -E "Command line invocation" build.log | head -2 || true
+          echo "========== 数字流解码（还原被污染的输出）=========="
+          python3 - <<'PYEOF'
+          import re
+          raw = open('build.log', encoding='utf-8', errors='replace').read()
+          nums = []
+          for line in raw.split('\n'):
+              s = line.strip()
+              if s and re.fullmatch(r'[0-9]{1,3}(, ?[0-9]{1,3})*,?', s):
+                  nums += [int(x) for x in re.findall(r'[0-9]+', s)]
+          print("DECODED_BYTES:", len(nums))
+          if nums:
+              b = bytes(min(255, max(0, n)) for n in nums)
+              print(b.decode('utf-8', errors='replace')[-4000:])
+          else:
+              print("(无数字流)")
+              print(raw[-3000:])
+          PYEOF
           echo "========== 结束 =========="
 
       - name: 上传构建日志
