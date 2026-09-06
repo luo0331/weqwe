@@ -55,12 +55,10 @@ jobs:
           for d in Xcode_16.2 Xcode_16.1 Xcode_16.0.1 Xcode_16.0; do
             if [ -d "/Applications/$d.app" ]; then XSEL="/Applications/$d.app"; break; fi
           done
-          EXTRA_FLAGS=""
+          # 集成驱动在批量编译时会输出 malformed-JSON（IPC bug），统一改用传统驱动
+          EXTRA_FLAGS="SWIFT_USE_INTEGRATED_DRIVER=NO"
           if [ -z "$XSEL" ] && [ -d "/Applications/Xcode_15.4.app" ]; then
             XSEL="/Applications/Xcode_15.4.app"
-          fi
-          if [ -z "$XSEL" ]; then
-            EXTRA_FLAGS="SWIFT_USE_INTEGRATED_DRIVER=NO"
           fi
           if [ -n "$XSEL" ]; then sudo xcode-select -s "$XSEL/Contents/Developer"; fi
           xcodebuild -version
