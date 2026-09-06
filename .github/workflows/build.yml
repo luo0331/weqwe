@@ -47,6 +47,43 @@ jobs:
           move SampleHandler.swift BroadcastExtension/
           move BroadcastExtension.entitlements BroadcastExtension/
 
+      - name: 自动修复弯引号（翻译工具会把 " 替换成 “ ”，导致编译失败）
+        run: |
+          python3 - <<'PYEOF'
+          import pathlib
+          total = 0
+          for p in pathlib.Path('.').rglob('*.swift'):
+              t = p.read_text(encoding='utf-8')
+              if '\u201c' not in t and '\u201d' not in t and '\u2018' not in t and '\u2019' not in t:
+                  continue
+              out = []
+              in_str = False
+              esc = False
+              changed = 0
+              for ch in t:
+                  if esc:
+                      esc = False; out.append(ch); continue
+                  if in_str:
+                      if ch == '\\':
+                          esc = True; out.append(ch); continue
+                      if ch == '"':
+                          in_str = False; out.append(ch); continue
+                      out.append(ch); continue
+                  else:
+                      if ch == '"':
+                          in_str = True; out.append(ch); continue
+                      if ch == '\u201c' or ch == '\u201d':
+                          out.append('"'); changed += 1; continue
+                      if ch == '\u2018' or ch == '\u2019':
+                          out.append("'"); changed += 1; continue
+                      out.append(ch); continue
+              if changed:
+                  p.write_text(''.join(out), encoding='utf-8')
+                  print('fixed %d in %s' % (changed, p))
+                  total += changed
+          print('TOTAL_FIXED:', total)
+          PYEOF
+
       - name: 安装 XcodeGen 并生成工程
         run: |
           brew install xcodegen
