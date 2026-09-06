@@ -394,12 +394,14 @@ final class GameSession: ObservableObject {
         // 未开局的实时盘面立即点亮我方/队友布阵（开局后以识别为准，避免覆盖真实盘面）
         if !roundActive {
             var seeded = nodeStates
+            // 先清空两块阵地旧残留，保证重复确认时完全同步
+            for n in BoardLayout.nodes where n.seat.isAlly { seeded[n.id] = nil }
             for (id, _) in pre {
                 if let n = BoardLayout.nodeByID[id], n.seat.isAlly {
                     seeded[id] = NodeSnapshot(occupied: true, owner: n.seat)
                 }
             }
-            nodeStates = seeded
+            nodeStates = seeded.compactMapValues { $0 }
         }
         rebuild()
         toast = "已套用布阵棋谱（\(pre.count) 枚），实时棋盘已更新"
@@ -423,7 +425,11 @@ final class GameSession: ObservableObject {
                         updatedAt: lastFrameAt,
                         roundActive: roundActive,
                         inferenceLeft: latestInference(.leftEnemy),
-                        inferenceRight: latestInference(.rightEnemy))
+                        inferenceRight: latestInference(.rightEnemy),
+                        verdictLeft: engineSnapshot.verdicts[.leftEnemy]?.vd ?? "",
+                        verdictRight: engineSnapshot.verdicts[.rightEnemy]?.vd ?? "",
+                        verdictLeftDetail: engineSnapshot.verdicts[.leftEnemy]?.detail ?? "",
+                        verdictRightDetail: engineSnapshot.verdicts[.rightEnemy]?.detail ?? "")
     }
 
     private func renderPiP() {

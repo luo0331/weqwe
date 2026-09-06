@@ -20,12 +20,15 @@ struct PiPState {
     var roundActive = false
     var inferenceLeft: String = ""
     var inferenceRight: String = ""
+    var verdictLeft: String = ""       // 大字结论：≥师长 / 工兵 / 炸弹 / 撞雷…
+    var verdictRight: String = ""
+    var verdictLeftDetail: String = ""  // 候选明细（" / " 分隔）
+    var verdictRightDetail: String = ""
 }
 
 /// 悬浮窗：自定义 PiP（AVSampleBufferDisplayLayer）。
-/// iOS 不允许第三方 App 在其他 App 上层叠加窗口，PiP 是唯一合规途径：
-/// 把实时数据渲染成视频帧，通过画中画小窗浮在微信上面，边看边下。
-/// 每 1 秒定时渲染"敌方牌情"数据卡，保证小窗永远有画面（修复黑屏）。
+/// iOS 不允许第三方 App 在其他 App 上层叠加窗口，PiP 是唯一合规途径。
+/// 每 1 秒定时渲染；窗口小 → 简洁大字版，窗口放大 → 12 格明细版（自适应）。
 @MainActor
 final class PiPManager: NSObject, ObservableObject {
     @Published var isActive = false
@@ -36,7 +39,8 @@ final class PiPManager: NSObject, ObservableObject {
     private var audioPlayer: AVAudioPlayer?
     private var renderTimer: DispatchSourceTimer?
     private var lastRender = Date.distantPast
-    private let size = CGSize(width: 720, height: 960)
+    private var compactMode = true
+    private let size = CGSize(width: 1280, height: 720)
 
     /// 由 GameSession 注入：随时取当前数据快照
     var stateProvider: (() -> PiPState)?
@@ -71,7 +75,6 @@ final class PiPManager: NSObject, ObservableObject {
     }
 
     func start() {
-        // 首帧渲染前 isPictureInPicturePossible 可能为 false，直接尝试启动
         controller?.startPictureInPicture()
         render(state: stateProvider?() ?? PiPState())
     }
@@ -87,7 +90,7 @@ final class PiPManager: NSObject, ObservableObject {
         guard now.timeIntervalSince(lastRender) >= 0.4 else { return }
         lastRender = now
         guard let pb = Self.makeBuffer(size: size) else { return }
-        Self.draw(state: state, into: pb, size: size)
+        Self.draw(state: state, into: pb, size: size, compact: compactMode)
         enqueue(pb)
     }
 
@@ -121,8 +124,8 @@ final class PiPManager: NSObject, ObservableObject {
         return pb
     }
 
-    // MARK: 绘制"敌方牌情"数据卡（参考用户提供样式）
-    private nonisolated static func draw(state: PiPState, into pb: CVPixelBuffer, size: CGSize) {
+    // MARK: 绘制（横屏 16:9）
+    private nonisolated static func draw(state: PiPState, into pb: CVPixelBuffer, size: CGSize, compact: Bool) {
         CVPixelBufferLockBaseAddress(pb, [])
         defer { CVPixelBufferUnlockBaseAddress(pb, []) }
         guard let base = CVPixelBufferGetBaseAddress(pb) else { return }
@@ -139,98 +142,208 @@ final class PiPManager: NSObject, ObservableObject {
         UIColor(red: 0.043, green: 0.051, blue: 0.071, alpha: 1).setFill()
         UIRectFill(CGRect(origin: .zero, size: size))
 
-        drawText("敌方牌情", at: CGPoint(x: 34, y: 30),
-                 font: .systemFont(ofSize: 44, weight: .bold), color: .white)
-        let timeStr = state.updatedAt.map { "更新 " + DateFormatter.shortTime.string(from: $0) } ?? "待机中"
-        let ts = timeStr as NSString
-        let tw = ts.size(withAttributes: [.font: UIFont.systemFont(ofSize: 26)]).width
-        drawText(timeStr, at: CGPoint(x: size.width - tw - 34, y: 46),
-                 font: .systemFont(ofSize: 26), color: UIColor(white: 0.6, alpha: 1))
-
-        let pad: CGFloat = 30
-        let colW = (size.width - pad * 2 - 20) / 2
-
-        drawText("敌方剩余棋子", at: CGPoint(x: pad, y: 104),
-                 font: .systemFont(ofSize: 30, weight: .semibold), color: UIColor(white: 0.72, alpha: 1))
-        for (i, seat) in [Seat.leftEnemy, .rightEnemy].enumerated() {
-            let x = pad + CGFloat(i) * (colW + 20)
-            drawEnemyColumn(seat: seat, summary: state.summaries[seat], roundActive: state.roundActive,
-                            rect: CGRect(x: x, y: 148, width: colW, height: 424))
+        if compact {
+            drawCompact(state: state, size: size)
+        } else {
+            drawDetail(state: state, size: size)
         }
-
-        drawText("最新敌方大小判断", at: CGPoint(x: pad, y: 600),
-                 font: .systemFont(ofSize: 30, weight: .semibold), color: UIColor(white: 0.72, alpha: 1))
-        drawInferenceBox(seat: .leftEnemy, text: state.inferenceLeft,
-                         rect: CGRect(x: pad, y: 646, width: colW, height: 250))
-        drawInferenceBox(seat: .rightEnemy, text: state.inferenceRight,
-                         rect: CGRect(x: pad + colW + 20, y: 646, width: colW, height: 250))
     }
 
-    private nonisolated static func drawEnemyColumn(seat: Seat, summary: InferenceEngine.EnemySummary?, roundActive: Bool, rect: CGRect) {
+    /// 简洁大字版：小窗时可读性优先（各等级存活数红色数字 + 判断结论特大字）
+    private nonisolated static func drawCompact(state: PiPState, size: CGSize) {
+        let pad: CGFloat = 20, gap: CGFloat = 16
+        let half = (size.width - pad*2 - gap) / 2
+        for (i, seat) in [Seat.leftEnemy, .rightEnemy].enumerated() {
+            let x0 = pad + CGFloat(i) * (half + gap)
+            let s = state.summaries[seat]
+
+            drawText("敌方·\(seat.short)", at: CGPoint(x: x0 + 6, y: 8),
+                     font: .systemFont(ofSize: 38, weight: .bold),
+                     color: UIColor(hex: seat.colorHex) ?? .white)
+
+            // 12 格：每级存活数（阵亡变暗归零，数字红色）
+            let order: [Rank] = [.司令, .军长, .师长, .旅长, .团长, .营长, .连长, .排长, .工兵, .炸弹, .地雷, .军旗]
+            let chipW = (half - 24) / 3
+            let chipH = (390 - 30) / 4
+            for (idx, r) in order.enumerated() {
+                let row = idx / 3, col = idx % 3
+                let crect = CGRect(x: x0 + CGFloat(col) * (chipW + 12), y: 56 + CGFloat(row) * (chipH + 10),
+                                   width: chipW, height: chipH)
+                let dead = s?.deadKnown[r] ?? 0
+                let remaining = max(0, r.initialCount - dead)
+                let dim = remaining == 0
+                UIColor(white: 1, alpha: dim ? 0.04 : 0.10).setFill()
+                UIBezierPath(roundedRect: crect, cornerRadius: 10).fill()
+                let cStr = SHORT[r] as NSString
+                let nStr = "\(remaining)" as NSString
+                let f = UIFont.systemFont(ofSize: 44, weight: .bold)
+                let cw2 = cStr.size(withAttributes: [.font: f]).width
+                let nw2 = nStr.size(withAttributes: [.font: f]).width
+                let startX = crect.midX - (cw2 + nw2) / 2
+                let charColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(white: 0.95, alpha: 1)
+                let numColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(red: 1.0, green: 0.27, blue: 0.27, alpha: 1)
+                cStr.draw(at: CGPoint(x: startX, y: crect.midY - 28),
+                          withAttributes: [.font: f, .foregroundColor: charColor])
+                nStr.draw(at: CGPoint(x: startX + cw2, y: crect.midY - 28),
+                          withAttributes: [.font: f, .foregroundColor: numColor])
+            }
+
+            // 判断框（结论特大字 + 候选彩色块）
+            let jrect = CGRect(x: x0, y: 466, width: half, height: 234)
+            UIColor(white: 1, alpha: 0.04).setFill()
+            UIBezierPath(roundedRect: jrect, cornerRadius: 12).fill()
+            let border = UIBezierPath(roundedRect: jrect, cornerRadius: 12)
+            (UIColor(hex: seat.colorHex) ?? .gray).withAlphaComponent(0.8).setStroke()
+            border.lineWidth = 2
+            border.stroke()
+            (UIColor(hex: seat.colorHex) ?? .gray).setFill()
+            UIBezierPath(ovalIn: CGRect(x: jrect.minX + 14, y: jrect.minY + 18, width: 12, height: 12)).fill()
+            drawText("判断·\(seat.short)", at: CGPoint(x: jrect.minX + 34, y: jrect.minY + 10),
+                     font: .systemFont(ofSize: 24, weight: .bold),
+                     color: UIColor(hex: seat.colorHex) ?? .white)
+
+            let verdict = seat == .leftEnemy ? state.verdictLeft : state.verdictRight
+            let verdictText = verdict.isEmpty ? "待触发" : verdict
+            let vAttrs: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 62, weight: .bold),
+                .foregroundColor: verdict.isEmpty ? UIColor(white: 0.35, alpha: 1) : UIColor.systemYellow
+            ]
+            let vs = verdictText as NSString
+            let vsz = vs.size(withAttributes: vAttrs)
+            vs.draw(at: CGPoint(x: jrect.midX - vsz.width / 2, y: jrect.minY + 44), withAttributes: vAttrs)
+
+            let vDetail = seat == .leftEnemy ? state.verdictLeftDetail : state.verdictRightDetail
+            if !verdict.isEmpty, !vDetail.isEmpty {
+                let cFont = UIFont.systemFont(ofSize: 22, weight: .semibold)
+                var cx = jrect.minX + 18; var cy = jrect.minY + 128
+                for c in vDetail.split(separator: " / ").map(String.init) {
+                    let bigRank = ["司令", "军长", "师长", "旅长", "炸弹", "工兵"].contains(c)
+                    let cstr = c as NSString
+                    let cw = cstr.size(withAttributes: [.font: cFont]).width + 16
+                    if cx + cw > jrect.maxX - 14 { cx = jrect.minX + 18; cy += 34 }
+                    UIColor(white: 1, alpha: bigRank ? 0.15 : 0.07).setFill()
+                    UIBezierPath(roundedRect: CGRect(x: cx, y: cy, width: cw, height: 30), cornerRadius: 7).fill()
+                    cstr.draw(at: CGPoint(x: cx + 8, y: cy + 2),
+                              withAttributes: [.font: cFont, .foregroundColor: bigRank ? UIColor.systemYellow : UIColor(white: 0.86, alpha: 1)])
+                    cx += cw
+                }
+            }
+        }
+    }
+
+    /// 详细版：放大画中画时显示 12 格明细 + 判断条
+    private nonisolated static func drawDetail(state: PiPState, size: CGSize) {
+        drawText("敌方牌情 · 明细", at: CGPoint(x: 30, y: 14),
+                 font: .systemFont(ofSize: 34, weight: .bold), color: .white)
+        let timeStr = state.updatedAt.map { "更新 " + DateFormatter.shortTime.string(from: $0) } ?? ""
+        let ts = timeStr as NSString
+        let tw = ts.size(withAttributes: [.font: UIFont.systemFont(ofSize: 22)]).width
+        drawText(timeStr, at: CGPoint(x: size.width - tw - 30, y: 24),
+                 font: .systemFont(ofSize: 22), color: UIColor(white: 0.6, alpha: 1))
+
+        let pad: CGFloat = 30, gap: CGFloat = 20
+        let colW = (size.width - pad*2 - gap) / 2
+        let top: CGFloat = 64
+        let colH: CGFloat = 456
+
+        drawEnemyChipsColumn(seat: .leftEnemy, summary: state.summaries[.leftEnemy], roundActive: state.roundActive,
+                             rect: CGRect(x: pad, y: top, width: colW, height: colH))
+        drawEnemyChipsColumn(seat: .rightEnemy, summary: state.summaries[.rightEnemy], roundActive: state.roundActive,
+                             rect: CGRect(x: pad + colW + gap, y: top, width: colW, height: colH))
+
+        let stripY = top + colH + 14
+        let stripH = size.height - stripY - 24
+        drawJudgeStrip(seat: .leftEnemy, vd: state.verdictLeft, detail: state.verdictLeftDetail,
+                       rect: CGRect(x: pad, y: stripY, width: colW, height: stripH))
+        drawJudgeStrip(seat: .rightEnemy, vd: state.verdictRight, detail: state.verdictRightDetail,
+                       rect: CGRect(x: pad + colW + gap, y: stripY, width: colW, height: stripH))
+    }
+
+    /// 单敌剩余棋子明细：12 格芯片（3×4），阵亡变灰归零（数字红色）
+    private nonisolated static func drawEnemyChipsColumn(seat: Seat, summary: InferenceEngine.EnemySummary?, roundActive: Bool, rect: CGRect) {
         UIColor(white: 1, alpha: 0.04).setFill()
-        UIBezierPath(roundedRect: rect, cornerRadius: 18).fill()
-        let border = UIBezierPath(roundedRect: rect, cornerRadius: 18)
+        UIBezierPath(roundedRect: rect, cornerRadius: 14).fill()
+        let border = UIBezierPath(roundedRect: rect, cornerRadius: 14)
         (UIColor(hex: seat.colorHex) ?? .gray).withAlphaComponent(0.9).setStroke()
         border.lineWidth = 3
         border.stroke()
 
-        drawText("敌方·\(seat.short)", at: CGPoint(x: rect.minX + 20, y: rect.minY + 14),
-                 font: .systemFont(ofSize: 32, weight: .bold),
+        drawText("敌方·\(seat.short)", at: CGPoint(x: rect.minX + 16, y: rect.minY + 10),
+                 font: .systemFont(ofSize: 30, weight: .bold),
                  color: UIColor(hex: seat.colorHex) ?? .white)
-        let alive = roundActive ? (summary?.aliveTotal ?? 25) : 25
-        let aliveStr = "剩\(alive)/25" as NSString
-        let aw = aliveStr.size(withAttributes: [.font: UIFont.systemFont(ofSize: 30, weight: .bold)]).width
-        drawText(aliveStr as String, at: CGPoint(x: rect.maxX - aw - 20, y: rect.minY + 18),
-                 font: .systemFont(ofSize: 30, weight: .bold), color: .white)
+        let alive = (!roundActive) ? 25 : (summary?.aliveTotal ?? 25)
+        let aliveStr = "\(alive)/25" as NSString
+        let aw = aliveStr.size(withAttributes: [.font: UIFont.systemFont(ofSize: 26, weight: .bold)]).width
+        drawText(aliveStr as String, at: CGPoint(x: rect.maxX - aw - 16, y: rect.minY + 12),
+                 font: .systemFont(ofSize: 26, weight: .bold), color: .white)
 
-        // 与参考图一致的顺序
         let order: [Rank] = [.司令, .军长, .师长, .旅长, .团长, .营长, .连长, .排长, .工兵, .炸弹, .地雷, .军旗]
-        let highlight: Set<Rank> = [.司令, .军长, .工兵, .炸弹]
-        let chipW = (rect.width - 40 - 10) / 2
-        let chipH: CGFloat = 46
-        var cy = rect.minY + 66
-        for row in 0..<6 {
-            for col in 0..<2 {
-                let idx = row * 2 + col
-                guard idx < order.count else { break }
-                let r = order[idx]
-                let dead = summary?.deadKnown[r] ?? 0
-                let remaining = max(0, r.initialCount - dead)
-                let crect = CGRect(x: rect.minX + 20 + CGFloat(col) * (chipW + 10), y: cy,
-                                   width: chipW, height: chipH)
-                UIColor(white: 1, alpha: highlight.contains(r) ? 0.13 : 0.06).setFill()
-                UIBezierPath(roundedRect: crect, cornerRadius: 8).fill()
-                drawText("\(r.rawValue)\(remaining)",
-                         at: CGPoint(x: crect.minX + 12, y: crect.midY - 17),
-                         font: .systemFont(ofSize: 26, weight: .semibold),
-                         color: highlight.contains(r) ? UIColor.systemYellow : UIColor(white: 0.85, alpha: 1))
-            }
-            cy += chipH + 10
+        let chipW = (rect.width - 32 - 20) / 3
+        let chipY0 = rect.minY + 50
+        let chipH = (rect.height - 50 - 24) / 4
+        for (idx, r) in order.enumerated() {
+            let row = idx / 3, col = idx % 3
+            let crect = CGRect(x: rect.minX + 16 + CGFloat(col) * (chipW + 10),
+                               y: chipY0 + CGFloat(row) * (chipH + 8),
+                               width: chipW, height: chipH)
+            let dead = summary?.deadKnown[r] ?? 0
+            let remaining = max(0, r.initialCount - dead)
+            let dim = remaining == 0
+            UIColor(white: 1, alpha: dim ? 0.04 : 0.10).setFill()
+            UIBezierPath(roundedRect: crect, cornerRadius: 9).fill()
+            let cStr = SHORT[r] as NSString
+            let nStr = "\(remaining)" as NSString
+            let f = UIFont.systemFont(ofSize: 30, weight: .bold)
+            let cw2 = cStr.size(withAttributes: [.font: f]).width
+            let nw2 = nStr.size(withAttributes: [.font: f]).width
+            let startX = crect.midX - (cw2 + nw2) / 2
+            let charColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(white: 0.95, alpha: 1)
+            let numColor = dim ? UIColor(white: 0.35, alpha: 1) : UIColor(red: 1.0, green: 0.27, blue: 0.27, alpha: 1)
+            cStr.draw(at: CGPoint(x: startX, y: crect.midY - 18),
+                      withAttributes: [.font: f, .foregroundColor: charColor])
+            nStr.draw(at: CGPoint(x: startX + cw2, y: crect.midY - 18),
+                      withAttributes: [.font: f, .foregroundColor: numColor])
         }
     }
 
-    private nonisolated static func drawInferenceBox(seat: Seat, text: String, rect: CGRect) {
+    /// 底部判断条（详细版）：结论大字居中 + 候选彩色块
+    private nonisolated static func drawJudgeStrip(seat: Seat, vd: String, detail: String, rect: CGRect) {
         UIColor(white: 1, alpha: 0.04).setFill()
-        UIBezierPath(roundedRect: rect, cornerRadius: 16).fill()
-        let border = UIBezierPath(roundedRect: rect, cornerRadius: 16)
+        UIBezierPath(roundedRect: rect, cornerRadius: 12).fill()
+        let border = UIBezierPath(roundedRect: rect, cornerRadius: 12)
         (UIColor(hex: seat.colorHex) ?? .gray).withAlphaComponent(0.8).setStroke()
         border.lineWidth = 2
         border.stroke()
 
         (UIColor(hex: seat.colorHex) ?? .gray).setFill()
-        UIBezierPath(ovalIn: CGRect(x: rect.minX + 18, y: rect.minY + 22, width: 14, height: 14)).fill()
-        drawText("敌方·\(seat.short)", at: CGPoint(x: rect.minX + 44, y: rect.minY + 12),
-                 font: .systemFont(ofSize: 30, weight: .bold),
+        UIBezierPath(ovalIn: CGRect(x: rect.minX + 14, y: rect.minY + 16, width: 12, height: 12)).fill()
+        drawText("判断·\(seat.short)", at: CGPoint(x: rect.minX + 34, y: rect.minY + 8),
+                 font: .systemFont(ofSize: 23, weight: .bold),
                  color: UIColor(hex: seat.colorHex) ?? .white)
 
-        let body = text.isEmpty ? "待吃子触发后判断…" : text
-        let attrs: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 27, weight: .medium),
-            .foregroundColor: text.isEmpty ? UIColor(white: 0.5, alpha: 1) : UIColor.systemYellow
-        ]
-        (body as NSString).draw(in: CGRect(x: rect.minX + 20, y: rect.minY + 58,
-                                           width: rect.width - 40, height: rect.height - 72),
-                                withAttributes: attrs)
+        let vdEmpty = vd.isEmpty
+        let vFont = UIFont.systemFont(ofSize: 44, weight: .bold)
+        let vColor = vdEmpty ? UIColor(white: 0.45, alpha: 1) : UIColor.systemYellow
+        let vs = (vdEmpty ? "待吃子触发后判断…" : vd) as NSString
+        let vsz = vs.size(withAttributes: [.font: vFont])
+        vs.draw(at: CGPoint(x: max(rect.minX + 12, rect.midX - vsz.width / 2), y: rect.minY + 44),
+                withAttributes: [.font: vFont, .foregroundColor: vColor])
+
+        if !vdEmpty {
+            let cFont = UIFont.systemFont(ofSize: 20, weight: .semibold)
+            var cx = rect.minX + 16; var cy = rect.minY + 106
+            for c in detail.split(separator: " / ").map(String.init) {
+                let bigRank = ["司令", "军长", "师长", "旅长", "炸弹", "工兵"].contains(c)
+                let cstr = c as NSString
+                let cw = cstr.size(withAttributes: [.font: cFont]).width + 14
+                if cx + cw > rect.maxX - 12 { cx = rect.minX + 16; cy += 32 }
+                UIColor(white: 1, alpha: bigRank ? 0.15 : 0.07).setFill()
+                UIBezierPath(roundedRect: CGRect(x: cx, y: cy, width: cw, height: 26), cornerRadius: 6).fill()
+                cstr.draw(at: CGPoint(x: cx + 7, y: cy + 2),
+                          withAttributes: [.font: cFont, .foregroundColor: bigRank ? UIColor.systemYellow : UIColor(white: 0.85, alpha: 1)])
+                cx += cw
+            }
+        }
     }
 
     private nonisolated static func drawText(_ text: String, at point: CGPoint, font: UIFont, color: UIColor) {
@@ -286,7 +399,10 @@ extension PiPManager: AVPictureInPictureSampleBufferPlaybackDelegate {
         completionHandler()
     }
 
-    func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions) {}
+    func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions) {
+        // 窗口小 → 简洁大字版；窗口放大 → 详细明细版
+        compactMode = newRenderSize.width < 640
+    }
 
     nonisolated var byPlayerContainerView: UIView? { nil }
 

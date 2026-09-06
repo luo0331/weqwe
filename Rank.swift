@@ -23,8 +23,8 @@ enum Rank: String, Codable, CaseIterable, Hashable, Comparable {
     var initialCount: Int {
         switch self {
         case .司令, .军长, .军旗: return 1
-        case .师长, .旅长, .团长, .营长, .炸弹, .地雷: return 2
-        case .连长, .排长, .工兵: return 3
+        case .师长, .旅长, .团长, .营长, .炸弹: return 2
+        case .连长, .排长, .工兵, .地雷: return 3
         }
     }
 

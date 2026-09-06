@@ -108,7 +108,7 @@ struct DashboardView: View {
                 Circle().fill(Color(hex: seat.colorHex) ?? .gray).frame(width: 10, height: 10)
                 Text(seat.label).font(.headline)
                 Spacer()
-                Text("剩 \(s?.aliveTotal ?? 25)/25")
+                Text("剩 \(session.roundActive ? (s?.aliveTotal ?? 25) : 25)/25")
                     .font(.title3.bold().monospacedDigit())
                     .foregroundColor(Color(hex: seat.colorHex))
             }

@@ -27,12 +27,18 @@ final class InferenceEngine {
         var estimate: [Rank: Double] = [:]   // 存活构成期望
     }
 
+    struct VerdictInfo: Codable, Equatable {
+        let vd: String      // 大字结论：≥军长 / 工兵 / 炸弹 / 撞雷…
+        let detail: String  // 候选明细（" / " 分隔）
+    }
+
     struct Snapshot: Codable, Equatable {
         var pieces: [Piece] = []
         var summaries: [Seat: EnemySummary] = [:]
         var notes: [String] = []
         var identity: [Int: Rank] = [:]      // 我方/队友节点 → 已知身份
         var allyDead: [Rank: Int] = [:]
+        var verdicts: [Seat: VerdictInfo] = [:]   // 每敌最新推论（大字展示 + 候选明细）
         var inconsistent = false
 
         static let empty = Snapshot()
@@ -42,6 +48,10 @@ final class InferenceEngine {
         }
 
         func summary(for seat: Seat) -> EnemySummary? { summaries[seat] }
+    }
+
+    private func candsText(_ set: Set<Rank>) -> String {
+        set.sorted { ($0.strength ?? -1) > ($1.strength ?? -1) }.map(\.rawValue).joined(separator: " / ")
     }
 
     private(set) var snapshot: Snapshot = .empty
@@ -151,9 +161,11 @@ final class InferenceEngine {
                         if let d = dRank, d != .炸弹, let s = d.strength {
                             if d == .地雷 {
                                 allowed.formIntersection([.工兵])
+                                snap.verdicts[attacker] = .init(vd: "工兵", detail: "")
                             } else {
                                 allowed = allowed.filter { r in (r.strength ?? -99) > s }
                                 notes.append("\(pieces[i].label) 吃掉我方\(d.rawValue) ⇒ ≥\(d.rawValue)")
+                                snap.verdicts[attacker] = .init(vd: "≥\(d.rawValue)", detail: candsText(allowed))
                             }
                         }
                         constrainEnemy(pieces[i], to: allowed, why: dRank != nil ? "吃\(dRank!.rawValue)" : "吃子")
@@ -170,11 +182,13 @@ final class InferenceEngine {
                             if d == .地雷 {
                                 allowed.subtract([.工兵, .炸弹])
                                 notes.append("\(p.label) 撞雷阵亡 ⇒ 非工兵/炸弹")
+                                snap.verdicts[attacker] = .init(vd: "撞雷", detail: "非工兵 · 非炸弹")
                             } else if d == .炸弹 {
                                 notes.append("\(p.label) 撞炸阵亡")
                             } else if let s = d.strength {
                                 allowed = allowed.filter { r in (r.strength ?? 99) < s }
                                 notes.append("\(p.label) 攻\(d.rawValue)阵亡 ⇒ <\(d.rawValue)")
+                                snap.verdicts[attacker] = .init(vd: "<\(d.rawValue)", detail: candsText(allowed))
                             }
                         } else {
                             allowed.subtract([.炸弹]) // 对方存活 ⇒ 它不是炸弹
@@ -192,6 +206,7 @@ final class InferenceEngine {
                         if let d = dRank, d != .炸弹, d != .地雷 {
                             constrainEnemy(p, to: [.炸弹], why: "与\(d.rawValue)同尽")
                             notes.append("\(p.label) 判定→炸弹（与\(d.rawValue)同归于尽）")
+                            snap.verdicts[attacker] = .init(vd: "炸弹", detail: "")
                         } else if dRank == nil {
                             notes.append("\(p.label) 与未知子同尽（可能互为炸弹）")
                         }
@@ -220,6 +235,7 @@ final class InferenceEngine {
                             allowed = allowed.filter { r in (r.strength ?? 99) > s }
                             if a == .工兵 { allowed.subtract([.地雷]) }
                             notes.append("\(p.label) 吃掉我方\(a.rawValue) ⇒ ≥\(a.rawValue)")
+                            snap.verdicts[defender] = .init(vd: "≥\(a.rawValue)", detail: candsText(allowed))
                         }
                         allowed.subtract([.炸弹]) // 守方存活 ⇒ 必非炸弹
                         constrainEnemy(p, to: allowed, why: aRank != nil ? "胜\(aRank!.rawValue)" : "防守成功")
@@ -234,6 +250,7 @@ final class InferenceEngine {
                         if let a = aRank, a != .炸弹 {
                             constrainEnemy(p, to: [.炸弹], why: "与我方\(a.rawValue)同尽")
                             notes.append("\(p.label) 判定→炸弹（与我方\(a.rawValue)同归于尽）")
+                            snap.verdicts[defender] = .init(vd: "炸弹", detail: "")
                         }
                         kill(p, definiteRank: nil)
                     }

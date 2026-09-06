@@ -8,6 +8,7 @@ jobs:
   build:
     runs-on: macos-14
     strategy:
+      fail-fast: false
       matrix:
         variant: [lite, full]
     steps:
@@ -30,6 +31,7 @@ jobs:
           move GameSession.swift SQJQTracker/Session/
           move PiPManager.swift SQJQTracker/Session/
           move CameraManager.swift SQJQTracker/Session/
+          move FrameServer.swift SQJQTracker/Session/
           move DashboardView.swift SQJQTracker/Views/
           move BoardCanvasView.swift SQJQTracker/Views/
           move CalibrationView.swift SQJQTracker/Views/
@@ -37,6 +39,7 @@ jobs:
           move SettingsView.swift SQJQTracker/Views/
           move RootTabView.swift SQJQTracker/Views/
           move BroadcastPicker.swift SQJQTracker/Views/
+          move LayoutImportView.swift SQJQTracker/Views/
           move SQJQTracker.entitlements SQJQTracker/
           move SampleHandler.swift BroadcastExtension/
           move BroadcastExtension.entitlements BroadcastExtension/
@@ -65,7 +68,7 @@ jobs:
         if: failure()
         run: |
           echo "========== 本轮全部编译错误 (自动提炼) =========="
-          grep -E "error:|requires|note: .PiPManager|candidate" build.log | sort -u | head -80 || echo "(未匹配到 error 行)"
+          grep -E "error:" build.log | sort -u | head -80 || echo "(未匹配到 error 行)"
           echo "========== 结束 =========="
 
       - name: 打包 IPA

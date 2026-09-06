@@ -57,8 +57,8 @@ struct FloatingBallView: View {
     @State private var drag: CGSize = .zero
     @State private var expanded = false
 
-    private var leftAlive: Int { session.engineSnapshot.summary(for: .leftEnemy)?.aliveTotal ?? 25 }
-    private var rightAlive: Int { session.engineSnapshot.summary(for: .rightEnemy)?.aliveTotal ?? 25 }
+    private var leftAlive: Int { session.roundActive ? (session.engineSnapshot.summary(for: .leftEnemy)?.aliveTotal ?? 25) : 25 }
+    private var rightAlive: Int { session.roundActive ? (session.engineSnapshot.summary(for: .rightEnemy)?.aliveTotal ?? 25) : 25 }
 
     var body: some View {
         VStack(spacing: 8) {

@@ -158,6 +158,13 @@ struct LayoutImportView: View {
                 }
                 .buttonStyle(.bordered)
                 Button {
+                    autoAlign()
+                } label: {
+                    Label("自动对齐", systemImage: "wand.and.rays")
+                }
+                .buttonStyle(.bordered)
+                .disabled(cg == nil)
+                Button {
                     runOCR()
                 } label: {
                     Label(ocrRunning ? "识别中…" : "识别 25 格", systemImage: "text.viewfinder")
@@ -281,11 +288,17 @@ struct LayoutImportView: View {
         Task.detached(priority: .userInitiated) {
             var result = Array(repeating: Rank?.none, count: 30)
             for i in 0..<30 where !LayoutImportView.campSet.contains(i) {
+                // 裁剪收紧到字面（0.30），放大到更大尺寸；正向失败再试旋转 180°
                 let rect = LayoutImportView.cellRect(i, tl: t, br: b,
-                                                     imageSize: CGSize(width: img.width, height: img.height))
-                if let up = ImageStat.upscaled(img, rect: rect, scale: 3, minSide: 96),
-                   let r = OCREngine.shared.recognizeLayoutCellSync(in: up) {
-                    result[i] = r
+                                                     imageSize: CGSize(width: img.width, height: img.height),
+                                                     inset: 0.30)
+                if let up = ImageStat.upscaled(img, rect: rect, scale: 4, minSide: 140) {
+                    if let r = OCREngine.shared.recognizeLayoutCellSync(in: up) {
+                        result[i] = r
+                    } else if let up2 = ImageStat.upscaled(img, rect: rect, scale: 4, minSide: 140, rotate180: true),
+                              let r2 = OCREngine.shared.recognizeLayoutCellSync(in: up2) {
+                        result[i] = r2
+                    }
                 }
             }
             await MainActor.run {
@@ -307,14 +320,95 @@ struct LayoutImportView: View {
         dismiss()
     }
 
-    /// 网格下标 → 图像像素区域
-    static func cellRect(_ i: Int, tl: CGPoint, br: CGPoint, imageSize: CGSize) -> CGRect {
+    /// 网格下标 → 图像像素区域（inset 控制裁剪相对格子的收紧程度）
+    static func cellRect(_ i: Int, tl: CGPoint, br: CGPoint, imageSize: CGSize, inset: CGFloat = 0.36) -> CGRect {
         let lr = i / 5, lc = i % 5
         let w = (br.x - tl.x) / 5, h = (br.y - tl.y) / 6
         let cx = tl.x + (CGFloat(lc) + 0.5) * w
         let cy = tl.y + (CGFloat(lr) + 0.5) * h
-        let half = min(w, h) * 0.36
+        let half = min(w, h) * inset
         return CGRect(x: (cx - half) * imageSize.width, y: (cy - half) * imageSize.height,
                       width: half * 2 * imageSize.width, height: half * 2 * imageSize.height)
+    }
+
+    // MARK: 自动对齐（亮度投影吸附：找 5 列 6 行的棋子亮带中心）
+    private func autoAlign() {
+        guard let cg else { return }
+        let img = cg
+        let t = tl, b = br
+        Task.detached(priority: .userInitiated) {
+            if let g = LayoutImportView.refineGrid(image: img, tl: t, br: b) {
+                await MainActor.run {
+                    self.tl = g.0
+                    self.br = g.1
+                    self.session.toast = "网格已自动对齐"
+                }
+            } else {
+                await MainActor.run {
+                    self.session.toast = "自动对齐失败，请手动拖黄点"
+                }
+            }
+        }
+    }
+
+    /// 在用户粗框内做行/列亮度投影，吸附到 6×5 棋子亮带
+    static func refineGrid(image: CGImage, tl: CGPoint, br: CGPoint) -> (CGPoint, CGPoint)? {
+        let W = 240, H = 240
+        let cropRect = CGRect(x: tl.x * CGFloat(image.width), y: tl.y * CGFloat(image.height),
+                              width: (br.x - tl.x) * CGFloat(image.width),
+                              height: (br.y - tl.y) * CGFloat(image.height))
+            .intersection(CGRect(x: 0, y: 0, width: image.width, height: image.height))
+        guard cropRect.width > 8, cropRect.height > 8,
+              let crop = image.cropping(to: cropRect),
+              let ctx = CGContext(data: nil, width: W, height: H, bitsPerComponent: 8, bytesPerRow: W * 4,
+                                  space: ImageStat.rgbSpace,
+                                  bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
+        ctx.interpolationQuality = .medium
+        ctx.draw(crop, in: CGRect(x: 0, y: 0, width: W, height: H))
+        guard let data = ctx.data else { return nil }
+        let px = data.bindMemory(to: UInt8.self, capacity: W * H * 4)
+        var luma = [Double](repeating: 0, count: W * H)
+        for i in 0..<(W * H) {
+            luma[i] = 0.299 * Double(px[i * 4]) + 0.587 * Double(px[i * 4 + 1]) + 0.114 * Double(px[i * 4 + 2])
+        }
+
+        func centers(_ count: Int, horizontal: Bool) -> [Double]? {
+            let aCount = horizontal ? W : H
+            let bCount = horizontal ? H : W
+            var profile = [Double](repeating: 0, count: aCount)
+            for a in 0..<aCount {
+                var s = 0.0
+                for b in 0..<bCount {
+                    let idx = horizontal ? b * W + a : a * W + b
+                    s += luma[idx]
+                }
+                profile[a] = s / Double(bCount)
+            }
+            let sm = (0..<aCount).map { i -> Double in
+                let lo = max(0, i - 2), hi = min(aCount - 1, i + 2)
+                return (lo...hi).map { profile[$0] }.reduce(0, +) / Double(hi - lo + 1)
+            }
+            var peaks: [(Double, Double)] = []
+            for i in 2..<(aCount - 2) where sm[i] >= sm[i - 1] && sm[i] >= sm[i + 1] {
+                peaks.append((Double(i), sm[i]))
+            }
+            guard peaks.count >= count else { return nil }
+            peaks.sort { $0.1 > $1.1 }
+            let chosen = peaks.prefix(count).map(\.0).sorted()
+            // 等距重建并验证间距合理
+            let step = (chosen.last! - chosen.first!) / Double(count - 1)
+            guard step > 12 else { return nil }
+            return (0..<count).map { chosen.first! + step * Double($0) }
+        }
+
+        guard let cols = centers(5, horizontal: true), let rows = centers(6, horizontal: false) else { return nil }
+        let nx0 = (cols.first! - (cols[1] - cols[0]) / 2) / Double(W)
+        let nx1 = (cols.last! + (cols[1] - cols[0]) / 2) / Double(W)
+        let ny0 = (rows.first! - (rows[1] - rows[0]) / 2) / Double(H)
+        let ny1 = (rows.last! + (rows[1] - rows[0]) / 2) / Double(H)
+        guard nx1 > nx0, ny1 > ny0 else { return nil }
+        let newTL = CGPoint(x: tl.x + (br.x - tl.x) * nx0, y: tl.y + (br.y - tl.y) * ny0)
+        let newBR = CGPoint(x: tl.x + (br.x - tl.x) * nx1, y: tl.y + (br.y - tl.y) * ny1)
+        return (newTL, newBR)
     }
 }

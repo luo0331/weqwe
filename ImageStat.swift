@@ -93,8 +93,8 @@ enum ImageStat {
         return min(d, 1 - d)
     }
 
-    /// 放大裁剪图供 OCR（保持方向）
-    static func upscaled(_ image: CGImage, rect: CGRect, scale: CGFloat = 3, minSide: CGFloat = 96) -> CGImage? {
+    /// 放大裁剪图供 OCR（标准画法保持方向；rotate180 供方向重试）
+    static func upscaled(_ image: CGImage, rect: CGRect, scale: CGFloat = 3, minSide: CGFloat = 96, rotate180: Bool = false) -> CGImage? {
         let bounds = CGRect(x: 0, y: 0, width: image.width, height: image.height)
         let clip = rect.intersection(bounds)
         guard !clip.isNull, clip.width >= 4, clip.height >= 4,
@@ -107,8 +107,10 @@ enum ImageStat {
                                   bytesPerRow: w * 4, space: rgbSpace,
                                   bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
         ctx.interpolationQuality = .high
-        ctx.translateBy(x: 0, y: CGFloat(h))
-        ctx.scaleBy(x: 1, y: -1)
+        if rotate180 {
+            ctx.translateBy(x: CGFloat(w), y: CGFloat(h))
+            ctx.scaleBy(x: -1, y: -1)
+        }
         ctx.draw(crop, in: CGRect(x: 0, y: 0, width: w, height: h))
         return ctx.makeImage()
     }
