@@ -258,10 +258,19 @@ struct RecordDetailView: View {
                         .font(.caption).foregroundColor(.secondary)
                 }
                 if record.kind == .layout {
+                    let seatName: String = {
+                        if let g = record.grid, g.count == 30 {
+                            return (Seat(rawValue: record.gridSeat ?? "me") ?? .me) == .me ? "我方" : "队友"
+                        }
+                        let seats = Set(RecordStore.parseLayout(record.rawText).map(\.seat))
+                        if seats == [.teammate] { return "队友" }
+                        if seats.contains(.me) && seats.contains(.teammate) { return "我方+队友" }
+                        return "我方"
+                    }()
                     Button {
                         session.applyLayout(record)
                     } label: {
-                        Label("套用为本局我方/队友身份", systemImage: "square.and.arrow.down.on.square")
+                        Label("套用为\(seatName)布阵（同步实时）", systemImage: "square.and.arrow.down.on.square")
                     }
                     .buttonStyle(.borderedProminent)
                     Text("套用后，开局即可精确推演“吃掉这枚棋子的敌方棋子大小”。请在开始本局之前套用。")
