@@ -152,6 +152,9 @@ struct CalibrationView: View {
                 }
                 .font(.footnote)
 
+                Text("提示：抓取的是「当前整个手机屏幕」。推荐：游戏中横屏时按 电源+音量上 截一张图 → 回这里点「相册截图」选它。若用「抓取最新画面」，请保持录屏开启且刚从游戏切回来。")
+                    .font(.caption2).foregroundColor(.secondary)
+
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text("占用灵敏度阈值").font(.footnote)
