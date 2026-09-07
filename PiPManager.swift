@@ -33,6 +33,8 @@ struct PiPState {
 final class PiPManager: NSObject, ObservableObject {
     @Published var isActive = false
     @Published var canPiP = false
+    @Published var lastError: String?
+    @Published var framesRendered = 0
 
     let displayLayer = AVSampleBufferDisplayLayer()
     private var controller: AVPictureInPictureController?
@@ -98,9 +100,13 @@ final class PiPManager: NSObject, ObservableObject {
         let now = Date()
         guard now.timeIntervalSince(lastRender) >= 0.4 else { return }
         lastRender = now
+        // 两段式（最稳）：先 UIKit 画成 UIImage（保证内容一定画得出来），再把整图写入像素缓冲
+        let img = Self.renderImage(state: state, size: size, compact: compactMode)
         guard let pb = Self.makeBuffer(size: size) else { return }
-        Self.draw(state: state, into: pb, size: size, compact: compactMode)
-        enqueue(pb)
+        if Self.write(img: img, into: pb, size: size) {
+            framesRendered += 1
+            enqueue(pb)
+        }
     }
 
     private func enqueue(_ pb: CVPixelBuffer) {
@@ -121,45 +127,47 @@ final class PiPManager: NSObject, ObservableObject {
             allocator: kCFAllocatorDefault, imageBuffer: pb, dataReady: true,
             makeDataReadyCallback: nil, refcon: nil, formatDescription: fmt,
             sampleTiming: &timing, sampleBufferOut: &sb) == noErr, let sb else { return }
-        if displayLayer.status == .failed { displayLayer.flush() }
+        if displayLayer.status == .failed {
+            lastError = displayLayer.error.map { "画中画图层错误：\($0.localizedDescription)" }
+            displayLayer.flush()
+        }
         displayLayer.enqueue(sb)
     }
 
-    private nonisolated static func makeBuffer(size: CGSize) -> CVPixelBuffer? {
-        var pb: CVPixelBuffer?
-        let attrs: [CFString: Any] = [
-            kCVPixelBufferCGImageCompatibilityKey: true,
-            kCVPixelBufferCGBitmapContextCompatibilityKey: true
-        ]
-        guard CVPixelBufferCreate(kCFAllocatorDefault, Int(size.width), Int(size.height),
-                                  kCVPixelFormatType_32BGRA, attrs as CFDictionary, &pb) == kCVReturnSuccess
-        else { return nil }
-        return pb
+    private nonisolated static func renderImage(state: PiPState, size: CGSize, compact: Bool) -> UIImage {
+        UIGraphicsImageRenderer(size: size).image { _ in
+            UIColor(red: 0.043, green: 0.051, blue: 0.071, alpha: 1).setFill()
+            UIRectFill(CGRect(origin: .zero, size: size))
+            if compact {
+                drawCompact(state: state, size: size)
+            } else {
+                drawDetail(state: state, size: size)
+            }
+            // 心跳时间戳：小窗右下角每秒跳动，用于确认视频管道是否活着
+            let df = DateFormatter()
+            df.dateFormat = "HH:mm:ss"
+            let beat = df.string(from: Date()) as NSString
+            beat.draw(at: CGPoint(x: size.width - 170, y: size.height - 44),
+                      withAttributes: [.font: UIFont.monospacedDigitSystemFont(ofSize: 26, weight: .semibold),
+                                       .foregroundColor: UIColor(white: 1, alpha: 0.45)])
+        }
     }
 
-    // MARK: 绘制（横屏 16:9）
-    private nonisolated static func draw(state: PiPState, into pb: CVPixelBuffer, size: CGSize, compact: Bool) {
+    private nonisolated static func write(img: UIImage, into pb: CVPixelBuffer, size: CGSize) -> Bool {
         CVPixelBufferLockBaseAddress(pb, [])
         defer { CVPixelBufferUnlockBaseAddress(pb, []) }
-        guard let base = CVPixelBufferGetBaseAddress(pb) else { return }
+        guard let base = CVPixelBufferGetBaseAddress(pb), let cg = img.cgImage else { return false }
         guard let ctx = CGContext(
             data: base, width: Int(size.width), height: Int(size.height),
             bitsPerComponent: 8, bytesPerRow: CVPixelBufferGetBytesPerRow(pb),
             space: CGColorSpace(name: CGColorSpace.sRGB)!,
             bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue
-        ) else { return }
-
-        UIGraphicsPushContext(ctx)
-        defer { UIGraphicsPopContext() }
-
-        UIColor(red: 0.043, green: 0.051, blue: 0.071, alpha: 1).setFill()
-        UIRectFill(CGRect(origin: .zero, size: size))
-
-        if compact {
-            drawCompact(state: state, size: size)
-        } else {
-            drawDetail(state: state, size: size)
-        }
+        ) else { return false }
+        // 视频缓冲内存第 0 行 = 画面顶部，翻转后整图写入
+        ctx.translateBy(x: size.width, y: size.height)
+        ctx.scaleBy(x: 1, y: -1)
+        ctx.draw(cg, in: CGRect(origin: .zero, size: size))
+        return true
     }
 
     /// 简洁大字版：小窗时可读性优先（各等级存活数红色数字 + 判断结论特大字）
