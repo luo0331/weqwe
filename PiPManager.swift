@@ -65,6 +65,7 @@ final class PiPManager: NSObject, ObservableObject {
         if displayLayer.controlTimebase == nil {
             var tb: CMTimebase?
             if CMTimebaseCreateWithSourceClock(allocator: kCFAllocatorDefault, sourceClock: CMClockGetHostTimeClock(), timebaseOut: &tb) == noErr, let tb {
+                CMTimebaseSetRate(tb, 1.0)
                 displayLayer.controlTimebase = tb
             }
         }
@@ -107,9 +108,13 @@ final class PiPManager: NSObject, ObservableObject {
         guard CMVideoFormatDescriptionCreateForImageBuffer(
             allocator: kCFAllocatorDefault, imageBuffer: pb, formatDescriptionOut: &fmt) == noErr,
               let fmt else { return }
+        // 关键：PTS 必须取图层自身时基的时间。时基从 0 起步，而宿主时钟自开机累计，
+        // 两者相差巨大时帧永远"未到播放时间"，表现就是永久黑屏+播放占位符。
+        let pts = displayLayer.controlTimebase.map { CMTimebaseGetTime($0) }
+            ?? CMClockGetTime(CMClockGetHostTimeClock())
         var timing = CMSampleTimingInfo(
             duration: CMTime(value: 1, timescale: 10),
-            presentationTimeStamp: CMClockGetTime(CMClockGetHostTimeClock()),
+            presentationTimeStamp: pts,
             decodeTimeStamp: .invalid)
         var sb: CMSampleBuffer?
         guard CMSampleBufferCreateForImageBuffer(
