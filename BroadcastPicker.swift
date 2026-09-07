@@ -1,9 +1,9 @@
 import SwiftUI
 import ReplayKit
 
-/// 系统广播选择器：点击后弹出“开始录制”面板，选择本 App 的采集扩展。
+/// 系统广播选择器：点击后弹出"开始录制"面板，选择本 App 的采集扩展。
 struct BroadcastPickerView: UIViewRepresentable {
-    var preferredExtension: String = "com.sqjq.tracker.broadcast"
+    var preferredExtension: String = "com.sqjq.tracker.extension"
 
     func makeUIView(context: Context) -> RPSystemBroadcastPickerView {
         let v = RPSystemBroadcastPickerView(frame: CGRect(x: 0, y: 0, width: 220, height: 56))
