@@ -65,7 +65,13 @@ struct DashboardView: View {
                 .buttonStyle(.bordered)
             }
             .font(.footnote)
-            if !session.isCapturing {
+            if framesFlowing {
+                Text(session.roundActive ? "录屏正常，后台分析中。" : "录屏已连接（帧正常到达）：点「开始本局」，然后把游戏切到布阵界面。")
+                    .font(.caption).foregroundColor(.green)
+            } else if session.isCapturing {
+                Text("录屏似乎中断：帧没有到达。注意：系统自带的「屏幕录制」不会把画面传给本 App，要用本 App 的「① 启动录屏采集」。")
+                    .font(.caption).foregroundColor(.orange)
+            } else {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 8) {
                         VStack(alignment: .leading, spacing: 2) {
@@ -91,9 +97,6 @@ struct DashboardView: View {
                     Text("③ 切到微信四国军棋横屏对局：悬浮小窗实时显示左右敌情，本工具在后台自动分析。校准用「相册截图」最稳：游戏中截一张屏，再来选图框棋盘。")
                         .font(.caption2).foregroundColor(.secondary)
                 }
-            } else if !session.roundActive {
-                Text("采集中。先到「校准」用游戏截图框好棋盘，再点「开始本局」。")
-                    .font(.caption).foregroundColor(.secondary)
             }
             if session.roundActive {
                 Text("已开始记录。切到微信四国军棋对局，本工具会在后台自动跟踪。")
@@ -104,16 +107,22 @@ struct DashboardView: View {
         .background(cardBG)
     }
 
+    private var framesFlowing: Bool {
+        guard let t = session.lastFrameAt else { return false }
+        return Date().timeIntervalSince(t) < 6
+    }
+
     private var statusColor: Color {
         if session.roundActive { return .green }
         if session.awaitingBaseline { return .yellow }
-        if session.isCapturing { return .blue }
+        if framesFlowing { return .blue }
         return .gray
     }
 
     private var statusText: String {
         if session.roundActive { return "监控中 · 本局记录中" }
         if session.awaitingBaseline { return "等待基准帧（布阵界面）" }
+        if framesFlowing { return "录屏已连接 · 分析中" }
         if session.isCapturing { return "采集中 · 未开始记录" }
         return "未采集"
     }
