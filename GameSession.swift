@@ -165,13 +165,20 @@ final class GameSession: ObservableObject {
             }
         }
         if awaitingBaseline {
-            awaitingBaseline = false
             analyzer.takeBaseline(cg) { [weak self] snap in
                 guard let self else { return }
+                let count = snap.values.filter(\.occupied).count
+                // 基准有效性校验：完整四国盘面约 100 枚。识别太少说明画面不是
+                // 游戏棋盘（如本 App 自己的界面/桌面），拒绝作为基准，继续等待。
+                guard count >= 60 else {
+                    self.awaitingBaseline = true
+                    self.toast = "该画面不像完整棋盘（识别到 \(count) 枚）——请把游戏切到布阵界面后再试"
+                    return
+                }
+                self.awaitingBaseline = false
                 self.baseline = snap
                 self.nodeStates = snap
                 self.roundActive = true
-                let count = snap.values.filter(\.occupied).count
                 self.events.append(GameEvent(kind: .note("本局基准已建立：盘面 \(count) 枚棋子，四家配色已学习")))
                 self.rebuild()
             }
