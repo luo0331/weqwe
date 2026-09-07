@@ -53,6 +53,7 @@ final class GameSession: ObservableObject {
     private var baseline: [Int: NodeSnapshot] = [:]
     private var lastOCRAt = Date.distantPast
     private var ocrCursor = 0
+    private var idleIngestCount = 0
 
     var isCapturing: Bool { phase != .idle }
 
@@ -128,6 +129,7 @@ final class GameSession: ObservableObject {
     func stopWatching() {
         pollTimer?.cancel()
         pollTimer = nil
+        idleIngestCount = 0
         if phase == .watching { phase = .idle }
         startIdlePolling()
     }
@@ -153,6 +155,15 @@ final class GameSession: ObservableObject {
     // MARK: - 帧入口
     func ingest(_ cg: CGImage) {
         lastFrameAt = Date()
+        // 用户从任意入口开启录屏后（帧持续到达），自动进入采集中状态，无需去设置页手动开启
+        if phase == .idle {
+            idleIngestCount += 1
+            if idleIngestCount >= 2 {
+                idleIngestCount = 0
+                phase = .watching
+                toast = "检测到录屏画面，已自动进入采集中——可以「开始本局」了"
+            }
+        }
         if awaitingBaseline {
             awaitingBaseline = false
             analyzer.takeBaseline(cg) { [weak self] snap in
