@@ -37,6 +37,13 @@ struct DashboardView: View {
                     Text("帧 \(DateFormatter.shortTime.string(from: t))")
                         .font(.caption2).foregroundColor(.secondary)
                 }
+                if session.pip.isActive {
+                    Text("PiP已渲染 \(session.pip.framesRendered) 帧")
+                        .font(.caption2).foregroundColor(session.pip.framesRendered > 0 ? .green : .orange)
+                }
+                if let err = session.pip.lastError {
+                    Text(err).font(.caption2).foregroundColor(.red)
+                }
             }
             HStack(spacing: 10) {
                 if session.roundActive {
