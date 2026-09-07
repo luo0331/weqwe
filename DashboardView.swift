@@ -66,8 +66,34 @@ struct DashboardView: View {
             }
             .font(.footnote)
             if !session.isCapturing {
-                Text("尚未采集：请到「设置」启动录屏采集（推荐）或相机取景。")
-                    .font(.caption).foregroundColor(.orange)
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 8) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("① 启动录屏采集").font(.caption.bold()).foregroundColor(.orange)
+                            Text("弹窗里选「记牌器采集」→ 开始直播").font(.caption2).foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        BroadcastPickerView()
+                            .frame(width: 48, height: 48)
+                            .background(Color.blue.opacity(0.15), in: RoundedRectangle(cornerRadius: 10))
+                    }
+                    HStack(spacing: 8) {
+                        Button {
+                            if session.pip.isActive { session.pip.stop() } else { session.pip.start() }
+                        } label: {
+                            Label(session.pip.isActive ? "画中画运行中（点按关闭）" : "② 开启画中画小窗",
+                                  systemImage: session.pip.isActive ? "pip.exit" : "pip.enter")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(session.pip.isActive ? .orange : .blue)
+                    }
+                    .font(.footnote)
+                    Text("③ 切到微信四国军棋横屏对局：悬浮小窗实时显示左右敌情，本工具在后台自动分析。校准用「相册截图」最稳：游戏中截一张屏，再来选图框棋盘。")
+                        .font(.caption2).foregroundColor(.secondary)
+                }
+            } else if !session.roundActive {
+                Text("采集中。先到「校准」用游戏截图框好棋盘，再点「开始本局」。")
+                    .font(.caption).foregroundColor(.secondary)
             }
             if session.roundActive {
                 Text("已开始记录。切到微信四国军棋对局，本工具会在后台自动跟踪。")
