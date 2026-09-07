@@ -64,6 +64,7 @@ struct LayoutImportView: View {
         }
         .onChange(of: pickerItem) { item in
             guard let item else { return }
+            pickerItem = nil   // 立即清空：保证同一张图之后还能再次导入（触发新的 change）
             Task {
                 if let data = try? await item.loadTransferable(type: Data.self),
                    let img = UIImage(data: data)?.cgImage {
@@ -73,13 +74,16 @@ struct LayoutImportView: View {
                     cellsBySeat[activeSeat] = Array(repeating: nil, count: 30)
                     selCell = -1
                     status = "已载入 \(activeSeat == .me ? "我方" : "队友")截图：拖两个黄点对齐 6×5 区域"
+                } else {
+                    status = "图片载入失败，请重试"
                 }
             }
         }
-        .sheet(item: $editingCell) { idx in
-            cellPicker(idx)
-                .presentationDetents([.medium])
-        }
+            .sheet(item: $editingCell) { idx in
+                cellPicker(idx)
+                    .presentationDetents([.medium])
+            }
+            .scrollDismissesKeyboard(.immediately)
     }
 
     // MARK: 入口按钮（双入口独立会话）
@@ -96,6 +100,7 @@ struct LayoutImportView: View {
         return Button {
             activeSeat = seat
             selCell = -1
+            pickerItem = nil   // 换身份必须清空选图，否则再次选同一张图不会触发 onChange
             status = "当前编辑：\(seat == .me ? "我方" : "队友")布阵"
         } label: {
             VStack(spacing: 4) {
@@ -151,6 +156,16 @@ struct LayoutImportView: View {
 
             TextField("标题（可选，默认按日期）", text: $title)
                 .textFieldStyle(.roundedBorder)
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("收起键盘") {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                                            to: nil, from: nil, for: nil)
+                        }
+                        .font(.footnote)
+                    }
+                }
 
             if !compositionWarnings.isEmpty {
                 Text("构成与标准配置不符：\(compositionWarnings.joined(separator: "、")) —— 请检查对应格子")
