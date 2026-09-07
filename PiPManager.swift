@@ -65,7 +65,7 @@ final class PiPManager: NSObject, ObservableObject {
         if displayLayer.controlTimebase == nil {
             var tb: CMTimebase?
             if CMTimebaseCreateWithSourceClock(allocator: kCFAllocatorDefault, sourceClock: CMClockGetHostTimeClock(), timebaseOut: &tb) == noErr, let tb {
-                CMTimebaseSetRate(tb, 1.0)
+                CMTimebaseSetRate(tb, rate: 1.0)
                 displayLayer.controlTimebase = tb
             }
         }
