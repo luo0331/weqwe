@@ -51,8 +51,8 @@ struct LayoutImportView: View {
                     .font(.headline)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 entryButtons
+                controls
                 if currentImage != nil {
-                    controls
                     imageEditor(imageSize: CGSize(width: currentImage!.width, height: currentImage!.height))
                 } else {
                     placeholder
@@ -130,9 +130,9 @@ struct LayoutImportView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 8) {
                 PhotosPicker(selection: $pickerItem, matching: .images) {
-                    Label("重新选图", systemImage: "photo.on.rectangle")
+                    Label(currentImage == nil ? "选择布局截图" : "重新选图", systemImage: "photo.on.rectangle")
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.borderedProminent)
                 Button {
                     runOCR()
                 } label: {
@@ -411,7 +411,10 @@ struct LayoutImportView: View {
     }
 
     private func runOCR() {
-        guard let cg = currentImage, !ocrRunning else { return }
+        guard let cg = currentImage, !ocrRunning else {
+            if currentImage == nil { status = "请先点「选择布局截图」选一张布局卡截图" }
+            return
+        }
         ocrRunning = true
         let img = cg
         let t = currentTL, b = currentBR
