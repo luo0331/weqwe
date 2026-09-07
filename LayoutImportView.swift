@@ -445,9 +445,25 @@ struct LayoutImportView: View {
             }
             let gCount = byGlyph, vCount = byVision
             await MainActor.run {
-                cellsBySeat[activeSeat] = result
+                var res = result
+                // 智能补全：恰好剩 1 个未识别格、构成恰好只缺 1 枚某棋子 → 直接补上并学习字模
+                let unknown = res.indices.filter { res[$0] == nil }
+                if unknown.count == 1 {
+                    var counts: [Rank: Int] = [:]
+                    for r in res.compactMap({ $0 }) { counts[r, default: 0] += 1 }
+                    let missing = Rank.allCases.filter { (counts[$0] ?? 0) < $0.initialCount }
+                    if missing.count == 1, (counts[missing[0]] ?? 0) == missing[0].initialCount - 1 {
+                        res[unknown[0]] = missing[0]
+                        learnCellGlyph(idx: unknown[0], rank: missing[0])
+                        cellsBySeat[activeSeat] = res
+                        ocrRunning = false
+                        status = "识别完成：25/25（自动补全 1 枚\(missing[0].rawValue)，字模已学习）"
+                        return
+                    }
+                }
+                cellsBySeat[activeSeat] = res
                 ocrRunning = false
-                status = "识别完成：\(result.compactMap { $0 }.count)/25（字模 \(gCount) + Vision \(vCount)）—— 错的点格子改"
+                status = "识别完成：\(res.compactMap { $0 }.count)/25（字模 \(gCount) + Vision \(vCount)）—— 错的点格子改"
             }
         }
     }
