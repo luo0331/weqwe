@@ -170,6 +170,18 @@ final class PiPManager: NSObject, ObservableObject {
         return true
     }
 
+    private nonisolated static func makeBuffer(size: CGSize) -> CVPixelBuffer? {
+        var pb: CVPixelBuffer?
+        let attrs: [CFString: Any] = [
+            kCVPixelBufferCGImageCompatibilityKey: true,
+            kCVPixelBufferCGBitmapContextCompatibilityKey: true
+        ]
+        guard CVPixelBufferCreate(kCFAllocatorDefault, Int(size.width), Int(size.height),
+                                  kCVPixelFormatType_32BGRA, attrs as CFDictionary, &pb) == kCVReturnSuccess
+        else { return nil }
+        return pb
+    }
+
     /// 简洁大字版：小窗时可读性优先（各等级存活数红色数字 + 判断结论特大字）
     private nonisolated static func drawCompact(state: PiPState, size: CGSize) {
         let pad: CGFloat = 20, gap: CGFloat = 16
