@@ -401,21 +401,27 @@ final class GameSession: ObservableObject {
             toast = "未能从该棋谱解析出布阵条目"
             return
         }
+        // 结构化网格棋谱以 gridSeat 为准；文本棋谱以条目里的身份为准
+        let appliedSeat: Seat = record.grid?.count == 30
+            ? (Seat(rawValue: record.gridSeat ?? Seat.me.rawValue) ?? .me)
+            : (record.layoutEntries().first?.seat ?? .me)
         layoutPreload = pre
         // 未开局的实时盘面立即点亮我方/队友布阵（开局后以识别为准，避免覆盖真实盘面）
         if !roundActive {
             var seeded = nodeStates
-            // 先清空两块阵地旧残留，保证重复确认时完全同步
-            for n in BoardLayout.nodes where n.seat.isAlly { seeded[n.id] = nil }
+            // 只清空要套用的那块阵地，另一块保留
+            for n in BoardLayout.nodes where n.seat == appliedSeat { seeded[n.id] = nil }
             for (id, _) in pre {
-                if let n = BoardLayout.nodeByID[id], n.seat.isAlly {
+                if let n = BoardLayout.nodeByID[id], n.seat == appliedSeat {
                     seeded[id] = NodeSnapshot(occupied: true, owner: n.seat)
                 }
             }
             nodeStates = seeded.compactMapValues { $0 }
         }
         rebuild()
-        toast = "已套用布阵棋谱（\(pre.count) 枚），实时棋盘已更新"
+        let seatName = appliedSeat == .me ? "我方" : "队友"
+        let also = record.layoutEntries().contains { $0.seat != appliedSeat } ? "（含双方）" : ""
+        toast = "已套用【\(seatName)】布阵\(also)（\(pre.count) 枚），实时棋盘已更新"
     }
 
     // MARK: - 悬浮窗
